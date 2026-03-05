@@ -22,8 +22,7 @@ body{
 /* VIEWPORT */
 #vp{
   position:fixed;inset:0;touch-action:none;overflow:hidden;
-  background:#060610;
-  cursor:crosshair;
+  background:#060610;cursor:crosshair;
 }
 #cw{
   position:absolute;transform-origin:0 0;
@@ -86,7 +85,7 @@ body{
 }
 #login-btn:hover{opacity:.85;}
 
-/* COOLDOWN — великий лічильник */
+/* COOLDOWN */
 #cd-wrap{
   position:fixed;top:58px;left:50%;transform:translateX(-50%);
   z-index:150;pointer-events:none;
@@ -100,18 +99,9 @@ body{
   text-shadow:0 0 40px rgba(139,92,246,.9),0 0 80px rgba(59,130,246,.4);
   transition:color .3s,text-shadow .3s;
 }
-#cd-wrap.full #cd-num{
-  color:#4ade80;
-  text-shadow:0 0 30px rgba(74,222,128,.8),0 0 60px rgba(74,222,128,.3);
-}
-#cd-wrap.low #cd-num{
-  color:#f87171;
-  text-shadow:0 0 30px rgba(248,113,113,.9);
-}
-#cd-wrap.admin #cd-num{
-  color:#f59e0b;
-  text-shadow:0 0 30px rgba(245,158,11,.8);
-}
+#cd-wrap.full #cd-num{color:#4ade80;text-shadow:0 0 30px rgba(74,222,128,.8),0 0 60px rgba(74,222,128,.3);}
+#cd-wrap.low  #cd-num{color:#f87171;text-shadow:0 0 30px rgba(248,113,113,.9);}
+#cd-wrap.admin #cd-num{color:#f59e0b;text-shadow:0 0 30px rgba(245,158,11,.8);}
 #cd-label{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:1.5px;text-transform:uppercase;}
 
 /* STACK BAR */
@@ -151,100 +141,10 @@ body{
   background:var(--bar);border:1px solid rgba(255,255,255,.07);
   color:rgba(255,255,255,.45);font-size:18px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  transition:all .14s;
+  transition:all .14s;position:relative;
 }
 .tbtn:hover{background:rgba(139,92,246,.25);color:#fff;border-color:rgba(139,92,246,.5);}
 .tbtn.active{background:rgba(139,92,246,.55);color:#fff;border-color:var(--accent);}
-.tbtn span{font-size:11px;font-weight:700;}
-
-/* CHAT PANEL */
-#chat-panel{
-  position:fixed;left:10px;bottom:90px;
-  width:280px;max-width:calc(100vw - 20px);
-  background:var(--bar);border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;z-index:150;
-  display:flex;flex-direction:column;overflow:hidden;
-  transition:opacity .2s,transform .2s;
-}
-#chat-panel.hidden{opacity:0;pointer-events:none;transform:translateY(8px);}
-#chat-msgs{
-  height:200px;overflow-y:auto;padding:10px 12px;
-  display:flex;flex-direction:column;gap:5px;
-  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;
-}
-#chat-msgs::-webkit-scrollbar{width:3px;}
-#chat-msgs::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:99px;}
-.chat-msg{font-size:12px;line-height:1.45;word-break:break-word;}
-.chat-msg .cn{font-weight:700;color:#a78bfa;}
-.chat-msg .cn.bot{color:#38bdf8;}
-.chat-msg .ct{color:rgba(255,255,255,.7);}
-.chat-sys{font-size:11px;color:rgba(255,255,255,.3);font-style:italic;text-align:center;padding:2px 0;}
-#chat-input-row{
-  display:flex;border-top:1px solid rgba(255,255,255,.06);
-}
-#chat-inp{
-  flex:1;background:transparent;border:none;outline:none;
-  padding:9px 12px;color:#fff;font-size:13px;font-family:inherit;
-}
-#chat-inp::placeholder{color:rgba(255,255,255,.2);}
-#chat-send{
-  background:none;border:none;color:var(--accent);
-  padding:0 12px;font-size:16px;cursor:pointer;transition:color .15s;
-}
-#chat-send:hover{color:#c4b5fd;}
-#chat-toggle{
-  position:fixed;left:10px;bottom:45px;z-index:151;
-  width:42px;height:42px;border-radius:12px;
-  background:var(--bar);border:1px solid rgba(255,255,255,.07);
-  color:rgba(255,255,255,.5);font-size:18px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .14s;
-}
-#chat-toggle:hover{background:rgba(59,130,246,.3);color:#fff;}
-#chat-toggle.active{background:rgba(59,130,246,.5);color:#fff;border-color:var(--accent2);}
-#chat-badge{
-  position:absolute;top:-4px;right:-4px;
-  background:#ef4444;color:#fff;font-size:9px;font-weight:700;
-  width:16px;height:16px;border-radius:50%;
-  display:none;align-items:center;justify-content:center;
-}
-
-/* LEADERBOARD PANEL */
-#lb-panel{
-  position:fixed;left:10px;top:60px;
-  width:230px;max-width:calc(100vw - 20px);
-  background:var(--bar);border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;z-index:150;
-  display:flex;flex-direction:column;overflow:hidden;
-  transition:opacity .2s,transform .2s;
-}
-#lb-panel.hidden{opacity:0;pointer-events:none;transform:translateY(-8px);}
-#lb-header{
-  padding:11px 14px 8px;font-size:13px;font-weight:800;
-  background:linear-gradient(90deg,rgba(139,92,246,.2),rgba(59,130,246,.2));
-  border-bottom:1px solid rgba(255,255,255,.06);
-  display:flex;align-items:center;gap:6px;
-}
-#lb-list{padding:6px 0;max-height:300px;overflow-y:auto;}
-.lb-row{
-  display:flex;align-items:center;gap:8px;
-  padding:5px 14px;font-size:12px;transition:background .12s;
-}
-.lb-row:hover{background:rgba(255,255,255,.04);}
-.lb-rank{
-  width:20px;font-weight:900;font-size:11px;
-  color:rgba(255,255,255,.3);flex-shrink:0;text-align:center;
-}
-.lb-rank.gold{color:#f59e0b;}
-.lb-rank.silver{color:#9ca3af;}
-.lb-rank.bronze{color:#b45309;}
-.lb-name{flex:1;font-weight:600;color:rgba(255,255,255,.85);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.lb-px{font-size:11px;color:rgba(255,255,255,.35);white-space:nowrap;}
-#lb-empty{padding:16px;text-align:center;font-size:12px;color:rgba(255,255,255,.25);}
-#lb-toggle{
-  position:fixed;left:10px;bottom:0;z-index:151; /* repositioned by JS */
-  display:none; /* managed inline */
-}
 
 /* ZOOM */
 #zbg{
@@ -282,8 +182,7 @@ body{
   border-radius:22px;padding:30px 26px;
   width:310px;max-width:calc(100vw - 28px);
   display:flex;flex-direction:column;gap:14px;
-  position:relative;
-  box-shadow:0 20px 60px rgba(0,0,0,.7);
+  position:relative;box-shadow:0 20px 60px rgba(0,0,0,.7);
 }
 .modal-title{
   font-size:20px;font-weight:900;text-align:center;
@@ -293,8 +192,7 @@ body{
 .mclose{
   position:absolute;top:14px;right:16px;
   background:none;border:none;color:rgba(255,255,255,.35);
-  font-size:20px;cursor:pointer;padding:4px;line-height:1;
-  transition:color .15s;
+  font-size:20px;cursor:pointer;padding:4px;line-height:1;transition:color .15s;
 }
 .mclose:hover{color:#fff;}
 .tabs{display:flex;background:rgba(255,255,255,.04);border-radius:10px;padding:3px;gap:3px;}
@@ -315,6 +213,75 @@ body{
 }
 .submit-btn:hover{opacity:.85;}
 .errmsg{font-size:12px;text-align:center;color:#f87171;min-height:16px;}
+
+/* LEADERBOARD MODAL */
+#lb-modal .modal-box{width:360px;}
+#lb-list{display:flex;flex-direction:column;gap:3px;max-height:380px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;}
+#lb-list::-webkit-scrollbar{width:3px;}
+#lb-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px;}
+.lb-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;border-radius:10px;transition:background .12s;
+}
+.lb-row:hover{background:rgba(255,255,255,.04);}
+.lb-row.me{background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);}
+.lb-rank{width:26px;font-weight:900;font-size:16px;text-align:center;flex-shrink:0;}
+.lb-name{flex:1;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lb-px{font-size:12px;color:rgba(255,255,255,.4);white-space:nowrap;}
+#lb-empty{padding:20px;text-align:center;font-size:13px;color:rgba(255,255,255,.3);}
+#lb-refresh{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);
+  border-radius:10px;padding:9px;color:rgba(255,255,255,.6);
+  font-size:13px;cursor:pointer;transition:all .14s;text-align:center;
+}
+#lb-refresh:hover{background:rgba(139,92,246,.25);color:#fff;}
+
+/* CHAT PANEL */
+#chat-panel{
+  position:fixed;left:10px;bottom:90px;
+  width:290px;max-width:calc(50vw);
+  background:var(--bar);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.08);border-radius:16px;
+  z-index:160;display:flex;flex-direction:column;overflow:hidden;
+  transition:opacity .2s,transform .2s;
+}
+#chat-panel.hidden{opacity:0;pointer-events:none;transform:translateY(6px);}
+#chat-msgs{
+  height:200px;overflow-y:auto;padding:10px 12px;
+  display:flex;flex-direction:column;gap:5px;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.08) transparent;
+}
+#chat-msgs::-webkit-scrollbar{width:3px;}
+#chat-msgs::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:99px;}
+.cmsg{font-size:12px;line-height:1.5;word-break:break-word;}
+.cmsg .cu{font-weight:700;color:#a78bfa;}
+.cmsg .cu.bot{color:#38bdf8;}
+.cmsg .ct{color:rgba(255,255,255,.7);}
+.csys{font-size:11px;color:rgba(255,255,255,.28);font-style:italic;text-align:center;padding:1px 0;}
+#chat-footer{
+  display:flex;border-top:1px solid rgba(255,255,255,.06);
+}
+#chat-inp{
+  flex:1;background:transparent;border:none;outline:none;
+  padding:9px 12px;color:#fff;font-size:13px;font-family:inherit;
+}
+#chat-inp::placeholder{color:rgba(255,255,255,.2);}
+#chat-send-btn{
+  background:none;border:none;padding:0 14px;
+  color:var(--accent);font-size:16px;cursor:pointer;transition:color .15s;
+}
+#chat-send-btn:hover{color:#c4b5fd;}
+
+/* CHAT UNREAD BADGE */
+#chat-badge{
+  position:absolute;top:-5px;right:-5px;
+  background:#ef4444;color:#fff;font-size:9px;font-weight:800;
+  min-width:16px;height:16px;border-radius:99px;padding:0 4px;
+  display:none;align-items:center;justify-content:center;
+  box-shadow:0 2px 6px rgba(239,68,68,.6);
+}
 
 /* LOADING */
 #loading{
@@ -378,10 +345,13 @@ body{
 
 <!-- TOOLBAR -->
 <div id="toolbar">
-  <button class="tbtn active" id="t-pixel" title="Піксель [1]">🖊</button>
-  <button class="tbtn" id="t-pencil" title="Олівець [2]">✏️</button>
-  <button class="tbtn" id="t-lb" title="Лідерборд [L]">🏆</button>
-  <button class="tbtn" id="t-save" title="Зберегти PNG">💾</button>
+  <button class="tbtn active" id="t-pixel"  title="Піксель [1]">🖊</button>
+  <button class="tbtn"        id="t-pencil" title="Олівець [2]">✏️</button>
+  <button class="tbtn"        id="t-chat"   title="Чат [C]" style="position:relative">
+    💬<div id="chat-badge"></div>
+  </button>
+  <button class="tbtn"        id="t-lb"     title="Лідерборд [L]">🏆</button>
+  <button class="tbtn"        id="t-save"   title="Зберегти PNG">💾</button>
 </div>
 
 <!-- ZOOM -->
@@ -396,25 +366,13 @@ body{
 <!-- NOTIF -->
 <div id="notif"></div>
 
-<!-- CHAT TOGGLE BUTTON -->
-<div id="chat-toggle" title="Чат [C]">
-  💬
-  <div id="chat-badge"></div>
-</div>
-
 <!-- CHAT PANEL -->
 <div id="chat-panel" class="hidden">
   <div id="chat-msgs"></div>
-  <div id="chat-input-row">
+  <div id="chat-footer">
     <input id="chat-inp" type="text" placeholder="Написати повідомлення…" maxlength="200" autocomplete="off">
-    <button id="chat-send">▶</button>
+    <button id="chat-send-btn">▶</button>
   </div>
-</div>
-
-<!-- LEADERBOARD PANEL -->
-<div id="lb-panel" class="hidden">
-  <div id="lb-header">🏆 Лідерборд</div>
-  <div id="lb-list"><div id="lb-empty">Завантаження…</div></div>
 </div>
 
 <!-- AUTH MODAL -->
@@ -426,20 +384,30 @@ body{
       <div class="tab active" data-t="login">Вхід</div>
       <div class="tab" data-t="register">Реєстрація</div>
     </div>
-    <input class="inp" id="a-user" type="text" placeholder="Нікнейм" autocomplete="username">
-    <input class="inp" id="a-pass" type="password" placeholder="Пароль" autocomplete="current-password">
-    <input class="inp" id="a-pass2" type="password" placeholder="Повтор пароля" autocomplete="new-password" style="display:none">
+    <input class="inp" id="a-user" type="text"     placeholder="Нікнейм"         autocomplete="username">
+    <input class="inp" id="a-pass" type="password" placeholder="Пароль"           autocomplete="current-password">
+    <input class="inp" id="a-pass2" type="password" placeholder="Повтор пароля"  autocomplete="new-password" style="display:none">
     <button class="submit-btn" id="a-submit">Увійти</button>
     <div class="errmsg" id="a-err"></div>
   </div>
 </div>
 
+<!-- LEADERBOARD MODAL -->
+<div class="modal" id="lb-modal">
+  <div class="modal-box">
+    <button class="mclose" id="lb-close">✕</button>
+    <div class="modal-title">🏆 Лідерборд</div>
+    <div id="lb-list"><div id="lb-empty">Завантаження…</div></div>
+    <button id="lb-refresh">🔄 Оновити</button>
+  </div>
+</div>
+
 <script>
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  CONFIG
-// ═══════════════════════════════════════════════
-const CANVAS_W = 1000;
-const CANVAS_H = 1000;
+// ═══════════════════════════════════════
+const CANVAS_W  = 1000;
+const CANVAS_H  = 1000;
 const MAX_STACK = 120;
 const REGEN_MS  = 1000;
 
@@ -451,235 +419,206 @@ const PALETTE_COLORS = [
   '#FF00FF','#FF007B','#C0C0FF','#B5ECEA','#F6D7B0','#FFEFD5'
 ];
 
-// ═══════════════════════════════════════════════
-//  AUDIO (Web Audio API — без файлів!)
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
+//  AUDIO
+// ═══════════════════════════════════════
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 function ensureAudio() {
   if (!audioCtx) audioCtx = new AudioCtx();
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
-
 function playClick() {
   try {
     ensureAudio();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+    const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.05);
-    gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.08);
-  } catch(e) {}
+    osc.type='square';
+    osc.frequency.setValueAtTime(880,audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440,audioCtx.currentTime+0.05);
+    gain.gain.setValueAtTime(0.18,audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.08);
+    osc.start(); osc.stop(audioCtx.currentTime+0.08);
+  } catch(e){}
 }
-
 function playEmpty() {
   try {
     ensureAudio();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+    const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
     osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
-    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-  } catch(e) {}
+    osc.type='sawtooth';
+    osc.frequency.setValueAtTime(200,audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80,audioCtx.currentTime+0.3);
+    gain.gain.setValueAtTime(0.25,audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.3);
+    osc.start(); osc.stop(audioCtx.currentTime+0.3);
+  } catch(e){}
 }
-
 function playRegen() {
   try {
     ensureAudio();
-    [440, 550, 660].forEach((freq, i) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+    [440,550,660].forEach((freq,i)=>{
+      const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
       osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.frequency.value = freq;
-      const t = audioCtx.currentTime + i*0.08;
-      gain.gain.setValueAtTime(0.15, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t+0.15);
+      osc.frequency.value=freq;
+      const t=audioCtx.currentTime+i*0.08;
+      gain.gain.setValueAtTime(0.15,t); gain.gain.exponentialRampToValueAtTime(0.001,t+0.15);
       osc.start(t); osc.stop(t+0.15);
     });
-  } catch(e) {}
+  } catch(e){}
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  STATE
-// ═══════════════════════════════════════════════
-let stack        = MAX_STACK;
-let lastRegen    = Date.now();
-let selColor     = '#E50000';
-let tool         = 'pixel';
-let scale        = 1;
-let ox = 0, oy   = 0;
-let spaceDown    = false;
-let noCooldown   = false;  // admin
-let currentUser  = null;
-let authMode     = 'login';
+// ═══════════════════════════════════════
+let stack       = MAX_STACK;
+let lastRegen   = Date.now();
+let selColor    = '#E50000';
+let tool        = 'pixel';
+let scale       = 1;
+let ox = 0, oy  = 0;
+let spaceDown   = false;
+let noCooldown  = false;
+let currentUser = null;
+let authMode    = 'login';
+let ws = null, wsConnected = false;
+let pixelData   = null;
 
-// websocket
-let ws = null;
-let wsConnected = false;
-
-// canvas image data
-let pixelData = null; // Uint8ClampedArray RGBA
-
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  CANVAS SETUP
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 const mc  = document.getElementById('mc');
 const hc  = document.getElementById('hc');
 const ctx = mc.getContext('2d');
 const hx  = hc.getContext('2d');
 mc.width = CANVAS_W; mc.height = CANVAS_H;
 hc.width = CANVAS_W; hc.height = CANVAS_H;
-const cw  = document.getElementById('cw');
-const vp  = document.getElementById('vp');
+const cw = document.getElementById('cw');
+const vp = document.getElementById('vp');
 
-function applyT()  { cw.style.transform = `translate(${ox}px,${oy}px) scale(${scale})`; }
+function applyT() { cw.style.transform = `translate(${ox}px,${oy}px) scale(${scale})`; }
 function centerCanvas() {
+  scale = Math.min(window.innerWidth / CANVAS_W, window.innerHeight / CANVAS_H) * 0.9;
+  scale = Math.max(0.25, Math.min(scale, 4));
   ox = (window.innerWidth  - CANVAS_W * scale) / 2;
   oy = (window.innerHeight - CANVAS_H * scale) / 2;
   applyT();
 }
 
-// ═══════════════════════════════════════════════
-//  CANVAS LOADING FROM SERVER
-// ═══════════════════════════════════════════════
-let loadedPixels = 0;
-let totalPixels  = CANVAS_W * CANVAS_H;
-
+// ═══════════════════════════════════════
+//  CANVAS LOADING
+// ═══════════════════════════════════════
 function initPixelData() {
   pixelData = new Uint8ClampedArray(CANVAS_W * CANVAS_H * 4);
 }
-
 function applyChunk(offset, base64Data) {
   const binary = atob(base64Data);
   const bytes  = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  // bytes is RGBA slice starting at offset*4
-  pixelData.set(bytes, offset * 4);
-  loadedPixels = Math.min(totalPixels, loadedPixels + bytes.length / 4);
+  for (let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  pixelData.set(bytes, offset*4);
 }
-
 function flushCanvas() {
   const imgData = new ImageData(pixelData, CANVAS_W, CANVAS_H);
   ctx.putImageData(imgData, 0, 0);
 }
 
-// Load canvas as image via /canvas.raw
 async function loadCanvasHTTP() {
   try {
+    document.getElementById('load-sub').textContent = 'Завантаження полотна…';
     const resp = await fetch('/canvas.raw');
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const buf  = await resp.arrayBuffer();
-    pixelData  = new Uint8ClampedArray(buf);
-    if (pixelData.length === CANVAS_W * CANVAS_H * 4) {
+    if (!resp.ok) throw new Error('HTTP '+resp.status);
+    const buf = await resp.arrayBuffer();
+    const arr = new Uint8ClampedArray(buf);
+    if (arr.length === CANVAS_W * CANVAS_H * 4) {
+      pixelData = arr;
       flushCanvas();
       setLoadProg(1);
       return true;
     }
+    throw new Error('Bad size: ' + arr.length);
   } catch(e) {
     console.warn('[Canvas] HTTP load failed:', e.message);
+    return false;
   }
-  return false;
 }
 
-function setLoadProg(frac) {
-  document.getElementById('load-prog').style.width = (frac * 100) + '%';
-}
+function setLoadProg(f) { document.getElementById('load-prog').style.width = (f*100)+'%'; }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  WEBSOCKET
-// ═══════════════════════════════════════════════
-function connectWS() {
-  const proto  = location.protocol === 'https:' ? 'wss' : 'ws';
-  const wsUrl  = `${proto}://${location.host}`;
-  document.getElementById('conn-status').textContent = wsUrl;
+// ═══════════════════════════════════════
+let chunksReceived = 0;
 
+function connectWS() {
+  const proto = location.protocol==='https:' ? 'wss' : 'ws';
+  const wsUrl = `${proto}://${location.host}`;
+  document.getElementById('conn-status').textContent = wsUrl;
   ws = new WebSocket(wsUrl);
 
   ws.onopen = async () => {
     wsConnected = true;
-    console.log('[WS] Connected');
     setLoadProg(0.2);
-    // Завантажити полотно через HTTP (швидше)
+    // Load canvas via HTTP (fast)
     const ok = await loadCanvasHTTP();
     if (!ok) {
-      // Fallback: через WS chunks
-      ws.send(JSON.stringify({ type: 'request_canvas' }));
+      // Fallback: WS chunks
+      initPixelData();
+      ws.send(JSON.stringify({ type:'request_canvas' }));
     } else {
       hideLoading();
     }
-    // Автологін
+    // Auto-login
     const savedUser = localStorage.getItem('op_user');
     const savedPass = localStorage.getItem('op_pass');
     if (savedUser && savedPass) {
-      ws.send(JSON.stringify({ type: 'login', username: savedUser, password: savedPass }));
+      ws.send(JSON.stringify({ type:'login', username:savedUser, password:savedPass }));
     }
   };
 
-  ws.onmessage = (e) => {
-    let msg;
-    try { msg = JSON.parse(e.data); } catch { return; }
+  ws.onmessage = e => {
+    let msg; try { msg=JSON.parse(e.data); } catch { return; }
     handleMsg(msg);
   };
 
-  ws.onclose = () => {
-    wsConnected = false;
-    console.log('[WS] Disconnected. Reconnecting in 3s…');
-    setTimeout(connectWS, 3000);
-  };
-
+  ws.onclose = () => { wsConnected=false; setTimeout(connectWS,3000); };
   ws.onerror = () => ws.close();
 }
 
 function send(obj) {
-  if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj));
+  if (ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify(obj));
 }
 
-let chunksReceived = 0;
 function handleMsg(msg) {
   switch(msg.type) {
 
-    case 'init':
-      break;
+    case 'init': break;
 
     case 'canvas_chunk': {
       if (!pixelData) initPixelData();
       applyChunk(msg.offset, msg.data);
       chunksReceived++;
-      setLoadProg(0.2 + 0.8 * (chunksReceived / msg.totalChunks));
-      if (chunksReceived >= msg.totalChunks) {
-        flushCanvas();
-        hideLoading();
-      }
+      setLoadProg(0.2 + 0.8*(chunksReceived/msg.totalChunks));
+      if (chunksReceived >= msg.totalChunks) { flushCanvas(); hideLoading(); }
       break;
     }
 
     case 'pixel': {
-      // Один піксель від сервера
-      const { x, y, color } = msg;
-      const r = parseInt(color.slice(1,3),16);
-      const g = parseInt(color.slice(3,5),16);
-      const b = parseInt(color.slice(5,7),16);
-      const i = (y*CANVAS_W+x)*4;
+      const {x,y,color} = msg;
+      const r=parseInt(color.slice(1,3),16);
+      const g=parseInt(color.slice(3,5),16);
+      const b=parseInt(color.slice(5,7),16);
+      const i=(y*CANVAS_W+x)*4;
       if (pixelData) { pixelData[i]=r; pixelData[i+1]=g; pixelData[i+2]=b; pixelData[i+3]=255; }
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, 1, 1);
+      ctx.fillStyle=color; ctx.fillRect(x,y,1,1);
       break;
     }
 
     case 'auth_ok': {
-      currentUser    = msg.username;
-      noCooldown     = msg.noCooldown;
-      stack          = noCooldown ? MAX_STACK : (msg.stack || MAX_STACK);
-      lastRegen      = Date.now();
-      document.getElementById('utag').textContent = '👤 ' + currentUser;
+      currentUser = msg.username;
+      noCooldown  = msg.noCooldown;
+      stack       = noCooldown ? MAX_STACK : (msg.stack || MAX_STACK);
+      lastRegen   = Date.now();
+      document.getElementById('utag').textContent = '👤 '+currentUser;
       document.getElementById('utag').style.display = '';
       document.getElementById('login-btn').style.display = 'none';
       if (noCooldown) {
@@ -687,10 +626,10 @@ function handleMsg(msg) {
         document.getElementById('cd-wrap').classList.add('admin');
       }
       closeModal('auth-modal');
+      document.getElementById('a-err').textContent = '';
       updateHUD();
-      showNotif('✅ Привіт, ' + currentUser + '!');
-      // Refresh leaderboard after login
-      send({ type: 'request_leaderboard' });
+      showNotif('✅ Привіт, '+currentUser+'!');
+      send({ type:'request_leaderboard' });
       break;
     }
 
@@ -699,471 +638,281 @@ function handleMsg(msg) {
       break;
 
     case 'stack_update':
-      stack = msg.stack;
-      updateHUD();
-      break;
+      stack = msg.stack; updateHUD(); break;
 
     case 'stack_empty':
-      playEmpty();
-      showNotif('Стак порожній! Зачекайте 🕒');
-      break;
+      playEmpty(); showNotif('Стак порожній! 🕒'); break;
 
     case 'online':
-      document.getElementById('ocnt').textContent = msg.count;
-      break;
+      document.getElementById('ocnt').textContent = msg.count; break;
 
-    case 'chat': {
-      addChatMsg(msg.username, msg.text, msg.isBot);
-      break;
-    }
+    case 'chat':
+      addChatMsg(msg.username, msg.text, msg.isBot); break;
 
-    case 'chat_history': {
-      if (Array.isArray(msg.messages)) {
+    case 'chat_history':
+      if (Array.isArray(msg.messages))
         msg.messages.forEach(m => addChatMsg(m.username, m.text, m.isBot));
-      }
       break;
-    }
 
-    case 'leaderboard': {
-      renderLeaderboard(msg.data);
-      break;
-    }
+    case 'leaderboard':
+      renderLeaderboard(msg.data); break;
 
-    default: break;
+    case 'sys':
+      addChatSys(msg.text); break;
   }
 }
 
-// ═══════════════════════════════════════════════
-//  CHAT
-// ═══════════════════════════════════════════════
-let chatOpen = false;
-let unreadChat = 0;
-
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function addChatMsg(username, text, isBot) {
-  const el = document.createElement('div');
-  el.className = 'chat-msg';
-  const nameClass = isBot ? 'cn bot' : 'cn';
-  el.innerHTML = `<span class="${nameClass}">${esc(username)}</span><span class="ct">: ${esc(text)}</span>`;
-  const msgs = document.getElementById('chat-msgs');
-  msgs.appendChild(el);
-  if (msgs.children.length > 200) msgs.removeChild(msgs.firstChild);
-  msgs.scrollTop = msgs.scrollHeight;
-
-  if (!chatOpen) {
-    unreadChat++;
-    const badge = document.getElementById('chat-badge');
-    badge.style.display = 'flex';
-    badge.textContent = unreadChat > 9 ? '9+' : unreadChat;
-    // Show notification only for non-bot or if bot is replying to user
-    if (!isBot || (isBot && currentUser)) showNotif(`💬 ${username}: ${text.slice(0,35)}`);
-  }
-}
-
-function addChatSys(text) {
-  const el = document.createElement('div');
-  el.className = 'chat-sys';
-  el.textContent = text;
-  const msgs = document.getElementById('chat-msgs');
-  msgs.appendChild(el);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function toggleChat() {
-  chatOpen = !chatOpen;
-  document.getElementById('chat-panel').classList.toggle('hidden', !chatOpen);
-  document.getElementById('chat-toggle').classList.toggle('active', chatOpen);
-  if (chatOpen) {
-    unreadChat = 0;
-    document.getElementById('chat-badge').style.display = 'none';
-    setTimeout(() => document.getElementById('chat-inp').focus(), 50);
-    const msgs = document.getElementById('chat-msgs');
-    msgs.scrollTop = msgs.scrollHeight;
-  }
-}
-
-function sendChat() {
-  const inp = document.getElementById('chat-inp');
-  const text = inp.value.trim();
-  if (!text) return;
-  if (!currentUser) { showNotif('⚠️ Увійдіть щоб писати в чат'); openModal('auth-modal'); return; }
-  send({ type: 'chat', text });
-  inp.value = '';
-}
-
-document.getElementById('chat-toggle').onclick = toggleChat;
-document.getElementById('chat-send').onclick = sendChat;
-document.getElementById('chat-inp').addEventListener('keydown', e => {
-  if (e.key === 'Enter') sendChat();
-  e.stopPropagation();
-});
-document.getElementById('chat-inp').addEventListener('pointerdown', e => e.stopPropagation());
-
-// ═══════════════════════════════════════════════
-//  LEADERBOARD
-// ═══════════════════════════════════════════════
-let lbOpen = false;
-
-function toggleLeaderboard() {
-  lbOpen = !lbOpen;
-  document.getElementById('lb-panel').classList.toggle('hidden', !lbOpen);
-  document.getElementById('t-lb').classList.toggle('active', lbOpen);
-  if (lbOpen) send({ type: 'request_leaderboard' });
-}
-
-function renderLeaderboard(data) {
-  const list = document.getElementById('lb-list');
-  if (!data || data.length === 0) {
-    list.innerHTML = '<div id="lb-empty">Ще немає даних 🎨</div>';
-    return;
-  }
-  const medals = ['🥇','🥈','🥉'];
-  const rankClasses = ['gold','silver','bronze'];
-  list.innerHTML = data.map((entry, i) => {
-    const rankEl = i < 3
-      ? `<span class="lb-rank ${rankClasses[i]}">${medals[i]}</span>`
-      : `<span class="lb-rank">#${i+1}</span>`;
-    const youTag = entry.username === currentUser ? ' <span style="color:#a78bfa;font-size:10px">(ти)</span>' : '';
-    return `<div class="lb-row">${rankEl}<span class="lb-name">${esc(entry.username)}${youTag}</span><span class="lb-px">${entry.pixels.toLocaleString()} px</span></div>`;
-  }).join('');
-}
-
-document.getElementById('t-lb').onclick = toggleLeaderboard;
-
-// Save button
-document.getElementById('t-save').onclick = () => {
-  const a = document.createElement('a');
-  a.download = 'okakpix.png';
-  a.href = mc.toDataURL();
-  a.click();
-  showNotif('💾 Збережено!');
-};
-
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  LOADING
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 let loadingHidden = false;
 function hideLoading() {
   if (loadingHidden) return;
   loadingHidden = true;
   setLoadProg(1);
   setTimeout(() => {
-    document.getElementById('loading').style.opacity = '0';
-    document.getElementById('loading').style.transition = 'opacity .5s';
-    setTimeout(() => document.getElementById('loading').style.display = 'none', 500);
+    const el = document.getElementById('loading');
+    el.style.transition = 'opacity .5s';
+    el.style.opacity = '0';
+    setTimeout(() => el.style.display='none', 500);
   }, 300);
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  PALETTE
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 function buildPalette() {
   const c = document.getElementById('palette');
   PALETTE_COLORS.forEach(col => {
     const s = document.createElement('div');
-    s.className = 'sw' + (col === selColor ? ' sel' : '');
+    s.className = 'sw'+(col===selColor?' sel':'');
     s.style.background = col;
     s.addEventListener('pointerdown', e => {
       e.stopPropagation();
-      document.querySelectorAll('.sw').forEach(x => x.classList.remove('sel'));
-      s.classList.add('sel');
-      selColor = col;
+      document.querySelectorAll('.sw').forEach(x=>x.classList.remove('sel'));
+      s.classList.add('sel'); selColor = col;
     });
     c.appendChild(s);
   });
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  HUD
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 let wasEmpty = false;
 function updateHUD() {
   if (noCooldown) {
     document.getElementById('sc').textContent = '∞';
     document.getElementById('sb-fill').style.width = '100%';
     document.getElementById('sb-fill').style.background = 'linear-gradient(90deg,#f59e0b,#ef4444)';
-    document.getElementById('cd-num').textContent = '0:00';
+    document.getElementById('cd-num').textContent = '∞';
     document.getElementById('cd-label').textContent = 'Admin — без кулдауну';
     return;
   }
-
   document.getElementById('sc').textContent = stack;
-  const pct = (stack / MAX_STACK) * 100;
+  const pct = (stack/MAX_STACK)*100;
   const fill = document.getElementById('sb-fill');
-  fill.style.width = pct + '%';
-  fill.style.background = pct > 60
+  fill.style.width = pct+'%';
+  fill.style.background = pct>60
     ? 'linear-gradient(90deg,#8b5cf6,#3b82f6)'
-    : pct > 25
+    : pct>25
     ? 'linear-gradient(90deg,#f59e0b,#ef4444)'
     : 'linear-gradient(90deg,#ef4444,#991b1b)';
-
-  const missing = MAX_STACK - stack;
-  const m = Math.floor(missing / 60), s = missing % 60;
+  const missing = MAX_STACK-stack;
+  const m=Math.floor(missing/60), s=missing%60;
   document.getElementById('cd-num').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-
   const cdWrap = document.getElementById('cd-wrap');
   cdWrap.classList.remove('full','low','admin');
-  if (stack === MAX_STACK) {
+  if (stack===MAX_STACK) {
     cdWrap.classList.add('full');
-    if (wasEmpty) { playRegen(); wasEmpty = false; }
-  } else if (stack <= 10) {
+    if (wasEmpty) { playRegen(); wasEmpty=false; }
+  } else if (stack<=10) {
     cdWrap.classList.add('low');
-    if (stack === 0) wasEmpty = true;
+    if (stack===0) wasEmpty=true;
   }
 }
 
-// ═══════════════════════════════════════════════
-//  REGEN LOOP (клієнтська сторона для плавності)
-// ═══════════════════════════════════════════════
 function regenLoop() {
   if (!noCooldown && currentUser) {
-    const now = Date.now();
-    const toAdd = Math.floor((now - lastRegen) / REGEN_MS);
-    if (toAdd > 0 && stack < MAX_STACK) {
-      stack = Math.min(MAX_STACK, stack + toAdd);
-      lastRegen = now - ((now - lastRegen) % REGEN_MS);
+    const now=Date.now(), toAdd=Math.floor((now-lastRegen)/REGEN_MS);
+    if (toAdd>0 && stack<MAX_STACK) {
+      stack=Math.min(MAX_STACK, stack+toAdd);
+      lastRegen=now-((now-lastRegen)%REGEN_MS);
       updateHUD();
     }
   }
   requestAnimationFrame(regenLoop);
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  NOTIFICATIONS
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 let ntimer;
 function showNotif(msg) {
-  const n = document.getElementById('notif');
-  n.textContent = msg; n.style.opacity = '1';
+  const n=document.getElementById('notif');
+  n.textContent=msg; n.style.opacity='1';
   clearTimeout(ntimer);
-  ntimer = setTimeout(() => n.style.opacity = '0', 2400);
+  ntimer=setTimeout(()=>n.style.opacity='0', 2400);
 }
 
-// ═══════════════════════════════════════════════
-//  ZOOM
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
+//  ZOOM / COORDS
+// ═══════════════════════════════════════
 function zoomAt(sx, sy, f) {
-  const ns = Math.min(50, Math.max(0.25, scale * f));
-  const r  = ns / scale;
-  ox = sx - r*(sx - ox);
-  oy = sy - r*(sy - oy);
-  scale = ns; applyT();
+  const ns=Math.min(50, Math.max(0.1, scale*f)), r=ns/scale;
+  ox=sx-r*(sx-ox); oy=sy-r*(sy-oy); scale=ns; applyT();
 }
-
-// ═══════════════════════════════════════════════
-//  SCREEN → CANVAS
-// ═══════════════════════════════════════════════
 function s2c(sx, sy) {
-  const rect = vp.getBoundingClientRect();
-  return {
-    cx: Math.floor((sx - rect.left - ox) / scale),
-    cy: Math.floor((sy - rect.top  - oy) / scale)
-  };
+  const rect=vp.getBoundingClientRect();
+  return { cx:Math.floor((sx-rect.left-ox)/scale), cy:Math.floor((sy-rect.top-oy)/scale) };
 }
-
 function updCoords(sx, sy) {
-  const { cx, cy } = s2c(sx, sy);
+  const {cx,cy}=s2c(sx,sy);
   document.getElementById('coord-bar').textContent = `x: ${cx} \u00a0 y: ${cy}`;
-  return { cx, cy };
+  return {cx,cy};
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  PLACE PIXEL
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 function placePixel(px, py) {
-  if (px < 0 || py < 0 || px >= CANVAS_W || py >= CANVAS_H) return false;
-  if (!currentUser) { showNotif('⚠️ Спочатку увійдіть в акаунт'); openModal('auth-modal'); return false; }
-  if (!noCooldown && stack <= 0) { playEmpty(); showNotif('Стак порожній! 🕒'); return false; }
-
+  if (px<0||py<0||px>=CANVAS_W||py>=CANVAS_H) return false;
+  if (!currentUser) { showNotif('⚠️ Спочатку увійдіть'); openModal('auth-modal'); return false; }
+  if (!noCooldown&&stack<=0) { playEmpty(); showNotif('Стак порожній! 🕒'); return false; }
   playClick();
-
-  // Оптимістично рендеримо одразу
-  ctx.fillStyle = selColor;
-  ctx.fillRect(px, py, 1, 1);
-
-  // Надсилаємо на сервер
-  send({ type: 'pixel', x: px, y: py, color: selColor });
-
-  if (!noCooldown) {
-    stack = Math.max(0, stack - 1);
-    updateHUD();
-  }
+  ctx.fillStyle=selColor; ctx.fillRect(px,py,1,1);
+  send({ type:'pixel', x:px, y:py, color:selColor });
+  if (!noCooldown) { stack=Math.max(0,stack-1); updateHUD(); }
   return true;
 }
 
 function drawLine(x0,y0,x1,y1) {
-  const dx=Math.abs(x1-x0),dy=Math.abs(y1-y0);
-  const sx=x0<x1?1:-1,sy=y0<y1?1:-1;
-  let err=dx-dy,x=x0,y=y0,steps=0;
+  const dx=Math.abs(x1-x0), dy=Math.abs(y1-y0);
+  const sx=x0<x1?1:-1, sy=y0<y1?1:-1;
+  let err=dx-dy, x=x0, y=y0, steps=0;
   while(true) {
-    if (!noCooldown && stack <= 0) break;
-    placePixel(x, y);
+    if (!noCooldown&&stack<=0) break;
+    placePixel(x,y);
     if(x===x1&&y===y1) break;
     const e2=2*err;
     if(e2>-dy){err-=dy;x+=sx;}
-    if(e2<dx){err+=dx;y+=sy;}
+    if(e2<dx) {err+=dx;y+=sy;}
     if(++steps>3000) break;
   }
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  HOVER
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 function drawHover(px, py) {
-  hx.clearRect(0, 0, CANVAS_W, CANVAS_H);
-  if (px<0||py<0||px>=CANVAS_W||py>=CANVAS_H) return;
-  hx.fillStyle = selColor;
-  hx.globalAlpha = 0.7;
-  hx.fillRect(px, py, 1, 1);
-  hx.globalAlpha = 1;
-  hx.strokeStyle = 'rgba(255,255,255,0.85)';
-  hx.lineWidth   = 0.35;
-  hx.strokeRect(px+0.1, py+0.1, 0.8, 0.8);
+  hx.clearRect(0,0,CANVAS_W,CANVAS_H);
+  if(px<0||py<0||px>=CANVAS_W||py>=CANVAS_H) return;
+  hx.fillStyle=selColor; hx.globalAlpha=0.7;
+  hx.fillRect(px,py,1,1); hx.globalAlpha=1;
+  hx.strokeStyle='rgba(255,255,255,0.85)'; hx.lineWidth=0.35;
+  hx.strokeRect(px+0.1,py+0.1,0.8,0.8);
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  POINTER INPUT
-// ═══════════════════════════════════════════════
-let activePtr = {};       // pointerId → {x,y}
-let pencilId  = null;
-let pencilLX  = -1, pencilLY = -1;
-let panId     = null;
-let panSX=0,panSY=0,panOX=0,panOY=0;
-let pinchIds  = null;
-let pinchDist = 0;
+// ═══════════════════════════════════════
+let activePtr={}, pencilId=null, pencilLX=-1, pencilLY=-1;
+let panId=null, panSX=0,panSY=0,panOX=0,panOY=0;
+let pinchIds=null, pinchDist=0;
 
 function isUI(e) {
-  return e.target.closest('#toolbar,#zbg,#palette,#topbar,#shud,.modal,#chat-panel,#chat-toggle,#lb-panel');
+  return e.target.closest('#toolbar,#zbg,#palette,#topbar,#shud,.modal,#chat-panel,#chat-footer');
 }
 
 vp.addEventListener('pointerdown', e => {
   if (isUI(e)) return;
   ensureAudio();
   vp.setPointerCapture(e.pointerId);
-  activePtr[e.pointerId] = { x:e.clientX, y:e.clientY };
-  const ids = Object.keys(activePtr);
-
-  if (ids.length >= 2) {
-    // Pinch
-    pencilId = null; panId = null;
-    pinchIds = [+ids[0], +ids[1]];
-    const p0=activePtr[pinchIds[0]], p1=activePtr[pinchIds[1]];
-    pinchDist = Math.hypot(p0.x-p1.x, p0.y-p1.y);
-    return;
+  activePtr[e.pointerId]={x:e.clientX,y:e.clientY};
+  const ids=Object.keys(activePtr);
+  if (ids.length>=2) {
+    pencilId=null; panId=null;
+    pinchIds=[+ids[0],+ids[1]];
+    const p0=activePtr[pinchIds[0]],p1=activePtr[pinchIds[1]];
+    pinchDist=Math.hypot(p0.x-p1.x,p0.y-p1.y); return;
   }
-
-  if (e.pointerType === 'mouse') {
-    if (e.button === 1 || e.button === 2 || spaceDown) {
-      panId=e.pointerId; panSX=e.clientX; panSY=e.clientY; panOX=ox; panOY=oy;
-      vp.style.cursor='grabbing'; return;
+  if (e.pointerType==='mouse') {
+    if (e.button===1||e.button===2||spaceDown) {
+      panId=e.pointerId;panSX=e.clientX;panSY=e.clientY;panOX=ox;panOY=oy;vp.style.cursor='grabbing';return;
     }
-    if (e.button === 0) {
-      const {cx,cy} = updCoords(e.clientX, e.clientY);
-      if (tool === 'pixel') { placePixel(cx,cy); }
-      else { pencilId=e.pointerId; pencilLX=cx; pencilLY=cy; placePixel(cx,cy); }
+    if (e.button===0) {
+      const {cx,cy}=updCoords(e.clientX,e.clientY);
+      if (tool==='pixel') placePixel(cx,cy);
+      else { pencilId=e.pointerId;pencilLX=cx;pencilLY=cy;placePixel(cx,cy); }
     }
   } else {
-    // Touch
-    if (tool === 'pencil') {
-      pencilId=e.pointerId;
-      const {cx,cy}=s2c(e.clientX,e.clientY);
-      pencilLX=cx; pencilLY=cy;
-      placePixel(cx,cy);
-    } else {
-      panId=e.pointerId; panSX=e.clientX; panSY=e.clientY; panOX=ox; panOY=oy;
-    }
+    if (tool==='pencil') {
+      pencilId=e.pointerId; const {cx,cy}=s2c(e.clientX,e.clientY);
+      pencilLX=cx;pencilLY=cy;placePixel(cx,cy);
+    } else { panId=e.pointerId;panSX=e.clientX;panSY=e.clientY;panOX=ox;panOY=oy; }
   }
 });
 
 vp.addEventListener('pointermove', e => {
   if (!activePtr[e.pointerId]) return;
-  activePtr[e.pointerId] = { x:e.clientX, y:e.clientY };
-  const ids = Object.keys(activePtr).map(Number);
-
-  // Pinch zoom
-  if (pinchIds && ids.length >= 2 && pinchIds.every(id => activePtr[id])) {
-    const p0=activePtr[pinchIds[0]], p1=activePtr[pinchIds[1]];
-    const d = Math.hypot(p0.x-p1.x, p0.y-p1.y);
-    const mx=(p0.x+p1.x)/2, my=(p0.y+p1.y)/2;
-    if (pinchDist > 0) zoomAt(mx, my, d/pinchDist);
-    pinchDist = d;
-    return;
+  activePtr[e.pointerId]={x:e.clientX,y:e.clientY};
+  const ids=Object.keys(activePtr).map(Number);
+  if (pinchIds&&ids.length>=2&&pinchIds.every(id=>activePtr[id])) {
+    const p0=activePtr[pinchIds[0]],p1=activePtr[pinchIds[1]];
+    const d=Math.hypot(p0.x-p1.x,p0.y-p1.y),mx=(p0.x+p1.x)/2,my=(p0.y+p1.y)/2;
+    if (pinchDist>0) zoomAt(mx,my,d/pinchDist); pinchDist=d; return;
   }
-
-  if (e.pointerId === pencilId) {
-    const {cx,cy}=s2c(e.clientX,e.clientY);
-    updCoords(e.clientX,e.clientY);
-    if (cx!==pencilLX || cy!==pencilLY) {
-      drawLine(pencilLX,pencilLY,cx,cy);
-      pencilLX=cx; pencilLY=cy;
-    }
-    return;
+  if (e.pointerId===pencilId) {
+    const {cx,cy}=s2c(e.clientX,e.clientY); updCoords(e.clientX,e.clientY);
+    if(cx!==pencilLX||cy!==pencilLY){drawLine(pencilLX,pencilLY,cx,cy);pencilLX=cx;pencilLY=cy;} return;
   }
-
-  if (e.pointerId === panId) {
-    ox = panOX+(e.clientX-panSX);
-    oy = panOY+(e.clientY-panSY);
-    applyT(); hx.clearRect(0,0,CANVAS_W,CANVAS_H);
-    return;
+  if (e.pointerId===panId) {
+    ox=panOX+(e.clientX-panSX); oy=panOY+(e.clientY-panSY); applyT(); hx.clearRect(0,0,CANVAS_W,CANVAS_H); return;
   }
-
-  if (e.pointerType === 'mouse') {
-    const {cx,cy} = updCoords(e.clientX,e.clientY);
-    drawHover(cx,cy);
-  }
+  if (e.pointerType==='mouse') { const {cx,cy}=updCoords(e.clientX,e.clientY); drawHover(cx,cy); }
 });
 
 vp.addEventListener('pointerup', e => {
-  const prev = activePtr[e.pointerId];
-  delete activePtr[e.pointerId];
-
-  if (pinchIds) { pinchIds=null; pinchDist=0; }
-  if (e.pointerId===pencilId) { pencilId=null; pencilLX=-1; pencilLY=-1; }
+  const prev=activePtr[e.pointerId]; delete activePtr[e.pointerId];
+  if (pinchIds){pinchIds=null;pinchDist=0;}
+  if (e.pointerId===pencilId){pencilId=null;pencilLX=-1;pencilLY=-1;}
   if (e.pointerId===panId) {
     panId=null;
-    if (e.pointerType!=='mouse' && tool==='pixel' && prev) {
-      const moved = Math.hypot(e.clientX-panSX, e.clientY-panSY);
-      if (moved < 8) { const {cx,cy}=s2c(e.clientX,e.clientY); placePixel(cx,cy); }
+    if (e.pointerType!=='mouse'&&tool==='pixel'&&prev) {
+      const moved=Math.hypot(e.clientX-panSX,e.clientY-panSY);
+      if (moved<8){const{cx,cy}=s2c(e.clientX,e.clientY);placePixel(cx,cy);}
     }
-    if (!spaceDown) vp.style.cursor = tool==='pencil'?'cell':'crosshair';
+    if (!spaceDown) vp.style.cursor=tool==='pencil'?'cell':'crosshair';
   }
 });
-
 vp.addEventListener('pointercancel', e => {
   delete activePtr[e.pointerId];
-  if (e.pointerId===pencilId) pencilId=null;
-  if (e.pointerId===panId) panId=null;
-  pinchIds=null;
+  if(e.pointerId===pencilId)pencilId=null;
+  if(e.pointerId===panId)panId=null; pinchIds=null;
 });
+vp.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.clientX,e.clientY,e.deltaY<0?1.2:1/1.2); },{passive:false});
+vp.addEventListener('contextmenu', e=>e.preventDefault());
 
-vp.addEventListener('wheel', e => {
-  e.preventDefault();
-  zoomAt(e.clientX, e.clientY, e.deltaY<0?1.2:1/1.2);
-}, {passive:false});
-
-vp.addEventListener('contextmenu', e => e.preventDefault());
-
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  KEYBOARD
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 window.addEventListener('keydown', e => {
   if (e.target.tagName==='INPUT') return;
-  if (e.code==='Space') { spaceDown=true; vp.style.cursor='grab'; e.preventDefault(); }
-  if (e.code==='Equal'||e.code==='NumpadAdd') zoomAt(window.innerWidth/2,window.innerHeight/2,1.25);
-  if (e.code==='Minus'||e.code==='NumpadSubtract') zoomAt(window.innerWidth/2,window.innerHeight/2,.8);
+  if (e.code==='Space'){spaceDown=true;vp.style.cursor='grab';e.preventDefault();}
+  if (e.code==='Equal'||e.code==='NumpadAdd')    zoomAt(window.innerWidth/2,window.innerHeight/2,1.25);
+  if (e.code==='Minus'||e.code==='NumpadSubtract')zoomAt(window.innerWidth/2,window.innerHeight/2,.8);
   if (e.key==='1') document.getElementById('t-pixel').click();
   if (e.key==='2') document.getElementById('t-pencil').click();
   if (e.key==='c'||e.key==='C') toggleChat();
-  if (e.key==='l'||e.key==='L') toggleLeaderboard();
+  if (e.key==='l'||e.key==='L') openModal('lb-modal');
 });
 window.addEventListener('keyup', e => {
-  if (e.code==='Space') { spaceDown=false; vp.style.cursor=tool==='pencil'?'cell':'crosshair'; }
+  if (e.code==='Space'){spaceDown=false;vp.style.cursor=tool==='pencil'?'cell':'crosshair';}
 });
 
-// ═══════════════════════════════════════════════
-//  TOOL BUTTONS
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
+//  TOOLBAR BUTTONS
+// ═══════════════════════════════════════
 document.getElementById('t-pixel').onclick = () => {
   tool='pixel';
   document.getElementById('t-pixel').classList.add('active');
@@ -1176,59 +925,134 @@ document.getElementById('t-pencil').onclick = () => {
   document.getElementById('t-pixel').classList.remove('active');
   vp.style.cursor='cell';
 };
+document.getElementById('t-chat').onclick = toggleChat;
+document.getElementById('t-lb').onclick   = () => { openModal('lb-modal'); send({type:'request_leaderboard'}); };
+document.getElementById('t-save').onclick = () => {
+  const a=document.createElement('a'); a.download='okakpix.png'; a.href=mc.toDataURL(); a.click();
+  showNotif('💾 Збережено!');
+};
 document.getElementById('zi').onclick = () => zoomAt(window.innerWidth/2,window.innerHeight/2,1.5);
 document.getElementById('zo').onclick = () => zoomAt(window.innerWidth/2,window.innerHeight/2,1/1.5);
 
-// ═══════════════════════════════════════════════
-//  MODAL
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
+//  MODALS
+// ═══════════════════════════════════════
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 document.getElementById('login-btn').onclick  = () => openModal('auth-modal');
 document.getElementById('auth-close').onclick = () => closeModal('auth-modal');
-document.getElementById('auth-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('auth-modal')) closeModal('auth-modal');
-});
+document.getElementById('lb-close').onclick   = () => closeModal('lb-modal');
+document.getElementById('auth-modal').addEventListener('click', e => { if(e.target===document.getElementById('auth-modal'))closeModal('auth-modal'); });
+document.getElementById('lb-modal').addEventListener('click',   e => { if(e.target===document.getElementById('lb-modal'))closeModal('lb-modal'); });
 
 document.querySelectorAll('.tab').forEach(t => {
   t.onclick = () => {
-    authMode = t.dataset.t;
-    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    authMode=t.dataset.t;
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
-    document.getElementById('a-pass2').style.display = authMode==='register'?'':'none';
-    document.getElementById('a-submit').textContent  = authMode==='register'?'Зареєструватись':'Увійти';
-    document.getElementById('a-err').textContent = '';
+    document.getElementById('a-pass2').style.display=authMode==='register'?'':'none';
+    document.getElementById('a-submit').textContent=authMode==='register'?'Зареєструватись':'Увійти';
+    document.getElementById('a-err').textContent='';
   };
 });
 
 document.getElementById('a-submit').onclick = () => {
-  const user = document.getElementById('a-user').value.trim();
-  const pass = document.getElementById('a-pass').value;
-  const pass2= document.getElementById('a-pass2').value;
-  const err  = document.getElementById('a-err');
-  if (!user||!pass) { err.textContent='Заповніть всі поля'; return; }
-  if (authMode==='register' && pass!==pass2) { err.textContent='Паролі не збігаються'; return; }
+  const user=document.getElementById('a-user').value.trim();
+  const pass=document.getElementById('a-pass').value;
+  const pass2=document.getElementById('a-pass2').value;
+  const err=document.getElementById('a-err');
+  if (!user||!pass){err.textContent='Заповніть всі поля';return;}
+  if (authMode==='register'&&pass!==pass2){err.textContent='Паролі не збігаються';return;}
+  if (!wsConnected){err.textContent='Немає зʼєднання з сервером';return;}
   err.textContent='';
-  send({ type: authMode, username: user, password: pass });
-  // Зберегти для автологіну
-  localStorage.setItem('op_user', user);
-  localStorage.setItem('op_pass', pass);
+  send({type:authMode, username:user, password:pass});
+  localStorage.setItem('op_user',user);
+  localStorage.setItem('op_pass',pass);
 };
-
-// Enter у полях
 ['a-user','a-pass','a-pass2'].forEach(id => {
-  document.getElementById(id).addEventListener('keydown', e => {
-    if (e.key==='Enter') document.getElementById('a-submit').click();
-  });
+  document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter')document.getElementById('a-submit').click(); });
 });
 
-// ═══════════════════════════════════════════════
+document.getElementById('lb-refresh').onclick = () => send({type:'request_leaderboard'});
+
+// ═══════════════════════════════════════
+//  CHAT
+// ═══════════════════════════════════════
+let chatOpen=false, unread=0;
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function toggleChat() {
+  chatOpen=!chatOpen;
+  document.getElementById('chat-panel').classList.toggle('hidden',!chatOpen);
+  document.getElementById('t-chat').classList.toggle('active',chatOpen);
+  if (chatOpen) {
+    unread=0;
+    document.getElementById('chat-badge').style.display='none';
+    const m=document.getElementById('chat-msgs');
+    m.scrollTop=m.scrollHeight;
+    setTimeout(()=>document.getElementById('chat-inp').focus(),60);
+  }
+}
+
+function addChatMsg(username, text, isBot) {
+  const el=document.createElement('div'); el.className='cmsg';
+  const cls=isBot?'cu bot':'cu';
+  el.innerHTML=`<span class="${cls}">${esc(username)}</span><span class="ct">: ${esc(text)}</span>`;
+  const msgs=document.getElementById('chat-msgs');
+  msgs.appendChild(el);
+  if(msgs.children.length>200)msgs.removeChild(msgs.firstChild);
+  msgs.scrollTop=msgs.scrollHeight;
+  if (!chatOpen) {
+    unread++;
+    const b=document.getElementById('chat-badge');
+    b.style.display='flex'; b.textContent=unread>9?'9+':unread;
+    showNotif(`💬 ${username}: ${text.slice(0,30)}`);
+  }
+}
+
+function addChatSys(text) {
+  const el=document.createElement('div'); el.className='csys'; el.textContent=text;
+  const msgs=document.getElementById('chat-msgs');
+  msgs.appendChild(el); msgs.scrollTop=msgs.scrollHeight;
+}
+
+function sendChat() {
+  const inp=document.getElementById('chat-inp'), t=inp.value.trim();
+  if (!t) return;
+  if (!currentUser){showNotif('⚠️ Увійдіть щоб писати');openModal('auth-modal');return;}
+  send({type:'chat',text:t}); inp.value='';
+}
+
+document.getElementById('chat-send-btn').onclick=sendChat;
+document.getElementById('chat-inp').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();e.stopPropagation();});
+document.getElementById('chat-inp').addEventListener('pointerdown',e=>e.stopPropagation());
+
+// ═══════════════════════════════════════
+//  LEADERBOARD
+// ═══════════════════════════════════════
+function renderLeaderboard(data) {
+  const list=document.getElementById('lb-list');
+  if (!data||data.length===0){
+    list.innerHTML='<div id="lb-empty">Ще немає пікселів 🎨</div>'; return;
+  }
+  const medals=['🥇','🥈','🥉'];
+  list.innerHTML=data.map((e,i)=>{
+    const rank=i<3?medals[i]:`#${i+1}`;
+    const me=e.username===currentUser?' me':'';
+    return `<div class="lb-row${me}">
+      <span class="lb-rank">${rank}</span>
+      <span class="lb-name">${esc(e.username)}${e.username===currentUser?' <span style="color:#a78bfa;font-size:10px">(ти)</span>':''}</span>
+      <span class="lb-px">${(e.pixels||0).toLocaleString()} px</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
 //  INIT
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════
 window.addEventListener('resize', centerCanvas);
 buildPalette();
-initPixelData();
 centerCanvas();
 updateHUD();
 requestAnimationFrame(regenLoop);
