@@ -186,7 +186,7 @@ html,body{position:fixed;inset:0;overflow:hidden;background:#e2e3ff;font-family:
 'use strict';
 let CANVAS_SIZE=4096,TILE_SIZE=256,TILES=16,MAX_STACK=120,REGEN_MS=1000,PALETTE=[];
 let selIdx=12,brushSz=1,tool='pixel',scale=3,ox=0,oy=0,spaceDown=false;
-let user=null,noCD=false,stack=120,lastRegen=Date.now(),ws=null;
+let user=null,noCD=false,stack=120,lastRegen=Date.now(),ws=null,pendingAuth=null;
 
 // ── AUDIO ──────────────────────────────────────────────────
 let AC=null;
@@ -257,8 +257,11 @@ function connectWS(){
     for(let ci=0;ci<TILES;ci++) for(let cj=0;cj<TILES;cj++){
       const b=new ArrayBuffer(3),v=new DataView(b);v.setUint8(0,0xA1);v.setUint8(1,ci);v.setUint8(2,cj);ws.send(b);
     }
+    // Auto-login from saved credentials
     const u=localStorage.getItem('op_u'),p=localStorage.getItem('op_p');
-    if(u&&p) wsSend({type:'login',username:u,password:p});
+    if(u&&p) ws.send(JSON.stringify({type:'login',username:u,password:p}));
+    // Send pending auth (register/login pressed before WS was ready)
+    if(pendingAuth){ ws.send(JSON.stringify(pendingAuth)); pendingAuth=null; }
   };
   ws.onmessage=e=>{if(typeof e.data==='string')onText(e.data);else onBin(e.data);};
   ws.onclose=()=>setTimeout(connectWS,3000);
@@ -278,12 +281,16 @@ function onText(raw){
   } else if(m.type==='auth_ok'){
     user=m.username;noCD=m.noCooldown;
     stack=noCD?MAX_STACK:(m.stack??MAX_STACK);lastRegen=Date.now();
+    localStorage.setItem('op_u',m.username);
+    if(pendingAuth&&pendingAuth.password) localStorage.setItem('op_p',pendingAuth.password);
+    pendingAuth=null;
     updateUserUI();updateHUD();closeModal('auth-bg');
     notify(`✅ Привіт, ${user}!`);
     addChatSys(`🟣 ${user} приєднався`);
     if(m.totalPixels) document.getElementById('upx').textContent=m.totalPixels;
   } else if(m.type==='auth_fail'){
     document.getElementById('a-err').textContent=m.reason;
+    pendingAuth=null;
   } else if(m.type==='stack_update'){
     if(!noCD){const prev=stack;stack=m.stack;if(prev===0&&stack>0){}updateHUD();}
   } else if(m.type==='stack_empty'){
@@ -451,8 +458,13 @@ document.getElementById('a-sub').onclick=()=>{
   if(!u||!p){err.textContent='Заповніть всі поля';return;}
   if(authMode==='register'&&p!==p2){err.textContent='Паролі не збігаються';return;}
   err.textContent='Зачекайте…';
-  localStorage.setItem('op_u',u);localStorage.setItem('op_p',p);
-  wsSend({type:authMode,username:u,password:p});
+  pendingAuth={type:authMode,username:u,password:p};
+  if(ws&&ws.readyState===1){
+    ws.send(JSON.stringify(pendingAuth));
+  } else {
+    err.textContent='⏳ Підключення до сервера… Натисніть ще раз через секунду.';
+    pendingAuth=null;
+  }
 };
 ['a-name','a-pass','a-pass2'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('a-sub').click();}));
 

@@ -92,30 +92,39 @@ async function loadEarth() {
     const meta = await sharp(earthPath).metadata();
     console.log(`[Canvas] earth.png: ${meta.width}x${meta.height}`);
 
-    // Round to nearest multiple of TILE_SIZE
-    const rawW = meta.width;
-    const rawH = meta.height;
+    // Use native resolution rounded down to TILE_SIZE multiple
     CANVAS_SIZE = Math.min(
-      Math.floor(rawW / TILE_SIZE) * TILE_SIZE,
-      Math.floor(rawH / TILE_SIZE) * TILE_SIZE
+      Math.floor(meta.width / TILE_SIZE) * TILE_SIZE,
+      Math.floor(meta.height / TILE_SIZE) * TILE_SIZE
     );
     if (CANVAS_SIZE < TILE_SIZE) CANVAS_SIZE = TILE_SIZE;
     console.log(`[Canvas] Using canvas size: ${CANVAS_SIZE}x${CANVAS_SIZE}`);
 
     initChunks();
 
-    // Check if we have a saved state that matches — if so, load it instead of re-quantizing
+    // Fast path: if saved state exists with matching size, load it (already has earth.png baked in)
     if (fs.existsSync(STATE_FILE) && fs.existsSync(META_FILE)) {
       try {
-        const meta2 = JSON.parse(fs.readFileSync(META_FILE,'utf8'));
-        if (meta2.CANVAS_SIZE === CANVAS_SIZE) {
-          loadSavedState();
-          console.log('[Canvas] Using saved state instead of re-quantizing earth.png');
-          return;
+        const savedMeta = JSON.parse(fs.readFileSync(META_FILE,'utf8'));
+        if (savedMeta.CANVAS_SIZE === CANVAS_SIZE) {
+          // Check if saved state is just all zeros (empty/ocean) - if so, skip it and re-quantize
+          const buf = fs.readFileSync(STATE_FILE);
+          const expected = TILES * TILES * TILE_SIZE * TILE_SIZE;
+          let nonZero = 0;
+          for (let i = 0; i < Math.min(buf.length, 10000); i++) { if (buf[i] !== 0) nonZero++; }
+          if (buf.length === expected && nonZero > 100) {
+            loadSavedState();
+            console.log('[Canvas] Loaded from saved state (fast path) ✓');
+            return;
+          } else {
+            console.log('[Canvas] Saved state appears empty, will re-quantize earth.png');
+          }
         }
       } catch(e) {}
     }
 
+    // Slow path: quantize earth.png (first run or size changed)
+    console.log('[Canvas] Quantizing earth.png...');
     const { data, info } = await sharp(earthPath)
       .resize(CANVAS_SIZE, CANVAS_SIZE, { fit: 'fill', kernel: 'lanczos3' })
       .raw()
@@ -123,19 +132,29 @@ async function loadEarth() {
 
     const ch = info.channels;
     for (let py = 0; py < CANVAS_SIZE; py++) {
+      if (py % 256 === 0) process.stdout.write(`\r[Canvas] Quantizing... ${Math.round(py/CANVAS_SIZE*100)}%`);
       for (let px = 0; px < CANVAS_SIZE; px++) {
         const pi = (py * CANVAS_SIZE + px) * ch;
         const idx = nearestColor(data[pi], data[pi+1], data[pi+2]);
         setColorIdx(px, py, idx);
       }
     }
-    console.log('[Canvas] earth.png quantized to palette ✓');
+    process.stdout.write('\n');
+    console.log('[Canvas] earth.png quantized ✓');
+    // Save immediately so next restart is fast
+    saveState();
+    console.log('[Canvas] Base state saved ✓');
+    // Don't call loadSavedState - we just built the state fresh
+    return;
+
   } catch(e) {
     console.error('[Canvas] sharp error:', e.message);
     console.log('[Canvas] Falling back to blank canvas');
     CANVAS_SIZE = 1024;
     initChunks();
   }
+
+  // Apply saved player changes ON TOP of the earth.png base
   loadSavedState();
 }
 
