@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>OkakPix</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%238b5cf6'/><text y='24' font-size='24' x='4'>🟪</text></svg>">
+<style>
+/* ═══════════════════════════════════════════════════
+   BASE — same structure as pixelplanet
+═══════════════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+  position:fixed;top:0;left:0;bottom:0;right:0;overflow:hidden;
+  background:#fff;
+  font-family:'Montserrat','Segoe UI',sans-serif;font-size:16px;
+  user-select:none;-webkit-tap-highlight-color:transparent;
+  border:none;
+}
+
+/* VIEWPORT CANVAS */
+#vp{
+  position:fixed;inset:0;overflow:hidden;touch-action:none;
+  cursor:crosshair;background:#e2e3ff;
+}
+#cw{position:absolute;transform-origin:0 0;image-rendering:pixelated;image-rendering:crisp-edges;}
+#mc,#hc{
+  display:block;image-rendering:pixelated;
+  image-rendering:-moz-crisp-edges;image-rendering:crisp-edges;
+}
+#hc{position:absolute;top:0;left:0;pointer-events:none;}
+
+/* ══ BOXES (identical class names to pixelplanet) ══ */
+.actionbuttons,
+.coorbox,
+.onlinebox,
+.cooldownbox,
+.palettebox{
+  position:absolute;
+  background-color:rgba(226,226,226,0.92);
+  color:#000;
+  text-align:center;
+  vertical-align:middle;
+  line-height:36px;
+  height:36px;
+  width:auto;
+  padding:0 16px;
+  border:1px solid #000;
+  z-index:10;
+}
+
+/* ═══ COOLDOWN BOX — top center ═══ */
+.cooldownbox{
+  top:16px;
+  left:0;right:0;
+  margin:0 auto;
+  width:48px;
+  line-height:24px;
+  height:24px;
+  border-radius:3px;
+  padding:0;
+  font-size:13px;
+  font-weight:700;
+  background:rgba(226,226,226,0.95);
+  display:none; /* hidden when stack is full */
+}
+
+/* ═══ COORDINATES BOX ═══ */
+.coorbox{
+  left:16px;
+  bottom:16px;
+  font-size:13px;
+  white-space:nowrap;
+}
+
+/* ═══ ONLINE BOX ═══ */
+.onlinebox{
+  left:16px;
+  bottom:57px;
+  white-space:nowrap;
+  font-size:13px;
+}
+
+/* ═══ PALETTE BOX ═══ */
+.palettebox{
+  display:flex;
+  text-align:center;
+  line-height:0;
+  z-index:11;
+  bottom:59px;
+  padding:3px;
+  left:0;right:0;
+  margin:0 auto;
+  width:fit-content;
+  height:auto;
+}
+/* compact (horizontal) palette for mobile */
+.compalette{
+  flex-direction:row;
+  flex-wrap:wrap;
+  width:140px;
+  height:auto;
+  min-height:28px;
+}
+.compalette>span{
+  width:28px;height:28px;margin:0;cursor:pointer;
+  outline:1px solid rgba(0,0,0,0.15);
+}
+/* wide (vertical) palette for desktop */
+.widpalette{
+  height:720px;width:24px;
+  flex-direction:column;
+}
+.widpalette>span{
+  width:24px;height:24px;margin:0;cursor:pointer;
+  outline:1px solid rgba(0,0,0,0.1);
+}
+.widpalette>span.selected,
+.compalette>span.selected{
+  outline:3px solid #000 !important;
+  transform:scale(1.1);
+  z-index:1;
+  position:relative;
+}
+
+/* PAL-SEL BUTTON (toggle palette) */
+#palselbutton{
+  position:absolute;
+  bottom:16px;right:16px;
+  width:36px;height:36px;
+  line-height:36px;
+  text-align:center;
+  padding:0;
+  border-radius:50%;
+  background:rgba(226,226,226,0.92);
+  border:1px solid #000;
+  cursor:pointer;
+  z-index:12;
+  font-size:18px;
+}
+#palselbutton:hover{background:rgba(200,200,200,1);}
+
+/* ═══ ACTION BUTTONS (left side, like pixelplanet) ═══ */
+.actionbuttons{
+  padding:0;
+  width:36px;
+  height:36px;
+  line-height:34px;
+  border-radius:50%;
+  cursor:pointer;
+  font-size:18px;
+  background:rgba(226,226,226,0.92);
+  transition:background .15s;
+}
+.actionbuttons:hover{background:rgba(200,200,200,1);}
+.actionbuttons.active{
+  background:rgba(180,180,255,0.95);
+  border-color:#6644aa;
+}
+
+#menubutton{left:16px;top:16px;}
+#settingsbutton{left:16px;top:57px;}
+#loginbutton{left:16px;top:98px;}
+#downloadbutton{left:16px;top:139px;}
+#helpbutton{left:16px;top:180px;}
+
+/* PENCIL TOOL button */
+#pencilbutton{left:16px;top:221px;}
+
+/* Zoom */
+#zoom-in-btn{right:16px;top:16px;}
+#zoom-out-btn{right:16px;top:57px;}
+
+/* ═══ STACK BAR ═══ */
+#stackbar-wrap{
+  position:absolute;
+  bottom:59px;
+  left:0;right:0;
+  margin:0 auto;
+  width:200px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  z-index:10;
+  pointer-events:none;
+}
+#stackbar-bg{
+  width:100%;height:6px;
+  background:rgba(0,0,0,0.15);border-radius:99px;overflow:hidden;
+}
+#stackbar-fill{
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,#7c3aed,#2563eb);
+  transition:width .3s,background .3s;
+}
+#stack-label{
+  font-size:10px;color:rgba(0,0,0,0.5);font-family:monospace;
+}
+
+/* ═══ MODAL / AUTH ═══ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(4px);
+  z-index:100;align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  background:#fff;border:1px solid #ccc;
+  border-radius:8px;padding:24px 22px;
+  width:300px;max-width:calc(100vw - 24px);
+  display:flex;flex-direction:column;gap:12px;
+  position:relative;box-shadow:0 8px 32px rgba(0,0,0,.2);
+}
+.modal-box h2{font-size:18px;font-weight:800;text-align:center;color:#333;}
+.modal-tabs{display:flex;border-bottom:1px solid #ddd;gap:0;}
+.modal-tab{
+  flex:1;padding:8px;text-align:center;cursor:pointer;
+  font-size:13px;color:#888;border-bottom:2px solid transparent;
+  transition:all .15s;
+}
+.modal-tab.active{color:#7c3aed;border-bottom-color:#7c3aed;font-weight:700;}
+.m-inp{
+  border:1px solid #d5d5d5;border-radius:4px;
+  padding:8px 10px;font-size:14px;width:100%;
+  outline:none;font-family:inherit;
+  transition:border-color .15s;
+}
+.m-inp:focus{border-color:#7c3aed;}
+.m-btn{
+  background:#7c3aed;color:#fff;border:none;
+  border-radius:4px;padding:10px;font-size:14px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+  transition:background .15s;
+}
+.m-btn:hover{background:#6d28d9;}
+.m-err{font-size:12px;color:#dc2626;text-align:center;min-height:14px;}
+.m-close{
+  position:absolute;top:10px;right:12px;
+  background:none;border:none;font-size:18px;
+  cursor:pointer;color:#999;
+  transition:color .15s;
+}
+.m-close:hover{color:#333;}
+
+/* ═══ NOTIF ═══ */
+#notif{
+  position:fixed;top:60px;left:50%;transform:translateX(-50%);
+  background:rgba(60,60,60,0.92);color:#fff;
+  padding:6px 16px;border-radius:4px;
+  font-size:13px;z-index:200;
+  opacity:0;transition:opacity .2s;
+  pointer-events:none;white-space:nowrap;
+}
+
+/* ═══ LOADING ═══ */
+#loading{
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:999;gap:20px;
+}
+#load-logo{
+  font-size:46px;font-weight:900;letter-spacing:-2px;
+  background:linear-gradient(90deg,#a78bfa,#60a5fa,#34d399);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+#load-sub{font-size:13px;color:rgba(255,255,255,.4);letter-spacing:.5px;}
+#load-bar-bg{width:220px;height:4px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;}
+#load-bar{height:100%;background:linear-gradient(90deg,#8b5cf6,#3b82f6,#34d399);border-radius:99px;width:5%;transition:width .3s;}
+#load-status{font-size:11px;color:rgba(255,255,255,.25);font-family:monospace;}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:480px){
+  .widpalette{height:360px;width:48px;}
+  .widpalette>span{width:24px;height:24px;}
+}
+@media(max-width:768px){
+  .widpalette,.compalette{flex-direction:row;flex-wrap:wrap;width:120px;height:144px;}
+  .widpalette>span,.compalette>span{width:24px;height:24px;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <div id="load-logo">OkakPix</div>
+  <div id="load-sub">Завантаження полотна…</div>
+  <div id="load-bar-bg"><div id="load-bar"></div></div>
+  <div id="load-status">Підключення…</div>
+</div>
+
+<!-- VIEWPORT -->
+<div id="vp">
+  <div id="cw">
+    <canvas id="mc"></canvas>
+    <canvas id="hc"></canvas>
+  </div>
+</div>
+
+<!-- COOLDOWN BOX (pixelplanet style top center) -->
+<div class="cooldownbox" id="cooldownbox">0:00</div>
+
+<!-- COORDINATES -->
+<div class="coorbox" id="coorbox">(0, 0)</div>
+
+<!-- ONLINE -->
+<div class="onlinebox" id="onlinebox">
+  <span id="online-count">0</span> 👤
+  <span id="user-pixels-wrap" style="display:none"> · <span id="user-pixels">0</span> 🖊</span>
+</div>
+
+<!-- LEFT BUTTONS -->
+<div class="actionbuttons" id="menubutton" title="Меню">☰</div>
+<div class="actionbuttons" id="settingsbutton" title="Налаштування">⚙️</div>
+<div class="actionbuttons" id="loginbutton" title="Увійти / Вийти">👤</div>
+<div class="actionbuttons" id="downloadbutton" title="Зберегти полотно">💾</div>
+<div class="actionbuttons" id="helpbutton" title="Допомога">❓</div>
+<div class="actionbuttons" id="pencilbutton" title="Олівець [2]">✏️</div>
+
+<!-- ZOOM BUTTONS -->
+<div class="actionbuttons" id="zoom-in-btn" title="Збільшити [+]">+</div>
+<div class="actionbuttons" id="zoom-out-btn" title="Зменшити [-]">−</div>
+
+<!-- STACK BAR -->
+<div id="stackbar-wrap">
+  <div id="stack-label">Стак: <span id="sc">120</span>/120</div>
+  <div id="stackbar-bg"><div id="stackbar-fill" style="width:100%"></div></div>
+</div>
+
+<!-- PAL-SEL BUTTON -->
+<div id="palselbutton" title="Відкрити/Закрити палітру">🎨</div>
+
+<!-- PALETTE -->
+<div class="palettebox compalette" id="palette" style="display:flex;"></div>
+
+<!-- NOTIF -->
+<div id="notif"></div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box">
+    <button class="m-close" id="auth-close">✕</button>
+    <h2>OkakPix</h2>
+    <div class="modal-tabs">
+      <div class="modal-tab active" data-t="login">Вхід</div>
+      <div class="modal-tab" data-t="register">Реєстрація</div>
+    </div>
+    <input class="m-inp" id="a-user" type="text" placeholder="Нікнейм" autocomplete="username">
+    <input class="m-inp" id="a-pass" type="password" placeholder="Пароль" autocomplete="current-password">
+    <input class="m-inp" id="a-pass2" type="password" placeholder="Повтор пароля" autocomplete="new-password" style="display:none">
+    <button class="m-btn" id="a-submit">Увійти</button>
+    <div class="m-err" id="a-err"></div>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal-overlay" id="help-modal">
+  <div class="modal-box">
+    <button class="m-close" id="help-close">✕</button>
+    <h2>Допомога</h2>
+    <div style="font-size:13px;line-height:1.7;color:#444">
+      <b>Піксель:</b> клік лівою кнопкою миші<br>
+      <b>Олівець:</b> утримуй та тягни<br>
+      <b>Панорамування:</b> ПКМ або Пробіл+ЛКМ<br>
+      <b>Зум:</b> колесо миші або кнопки +/−<br>
+      <b>Мобільний:</b> тап = піксель, 2 пальці = зум<br><br>
+      <b>Стак:</b> 120 пікселів, +1/сек<br>
+      <b>Admin:</b> admin / admin (∞ без КД)<br><br>
+      <kbd>1</kbd> Піксель &nbsp; <kbd>2</kbd> Олівець<br>
+      <kbd>+</kbd>/<kbd>-</kbd> Зум &nbsp; <kbd>Space</kbd>+тяг Пан
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════
+//  CONFIG (завантажується з сервера /api/canvas)
+// ═══════════════════════════════════════════════════════════
+let CANVAS_SIZE = 1024;
+let TILE_SIZE   = 256;
+let TILES       = 4;
+let MAX_STACK   = 120;
+let REGEN_MS    = 1000;
+let PALETTE     = [];
+
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let selectedColorIdx = 12;  // default red (index 12 = [229,0,0])
+let tool         = 'pixel'; // 'pixel' | 'pencil'
+let scale        = 3;
+let ox = 0, oy   = 0;
+let spaceDown    = false;
+let currentUser  = null;
+let noCooldown   = false;
+let stack        = MAX_STACK;
+let lastRegen    = Date.now();
+let paletteOpen  = true;
+let totalPixels  = 0;
+let ws           = null;
+
+// Canvas rendering
+let canvasChunks = {}; // "ci_cj" → ImageData of rendered chunk
+let pendingChunks= new Set(); // chunk ids being fetched
+
+// ═══════════════════════════════════════════════════════════
+//  AUDIO
+// ═══════════════════════════════════════════════════════════
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playClick() {
+  try {
+    ensureAudio();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type='square'; o.frequency.setValueAtTime(1100,audioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(600,audioCtx.currentTime+.04);
+    g.gain.setValueAtTime(.12,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.06);
+    o.start(); o.stop(audioCtx.currentTime+.06);
+  } catch(e){}
+}
+function playEmpty() {
+  try {
+    ensureAudio();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type='sawtooth'; o.frequency.setValueAtTime(220,audioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(60,audioCtx.currentTime+.35);
+    g.gain.setValueAtTime(.2,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.35);
+    o.start(); o.stop(audioCtx.currentTime+.35);
+  } catch(e){}
+}
+function playFull() {
+  try {
+    ensureAudio();
+    [523,659,784].forEach((f,i)=>{
+      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.frequency.value=f;
+      const t=audioCtx.currentTime+i*.1;
+      g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+.18);
+      o.start(t); o.stop(t+.18);
+    });
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CANVAS SETUP
+// ═══════════════════════════════════════════════════════════
+const mc  = document.getElementById('mc');
+const hc  = document.getElementById('hc');
+const ctx = mc.getContext('2d');
+const hx  = hc.getContext('2d');
+const cw  = document.getElementById('cw');
+const vp  = document.getElementById('vp');
+
+function resizeCanvas() {
+  mc.width = CANVAS_SIZE; mc.height = CANVAS_SIZE;
+  hc.width = CANVAS_SIZE; hc.height = CANVAS_SIZE;
+}
+
+function applyT()  { cw.style.transform = `translate(${ox}px,${oy}px) scale(${scale})`; }
+function center()  {
+  ox = (window.innerWidth  - CANVAS_SIZE * scale) / 2;
+  oy = (window.innerHeight - CANVAS_SIZE * scale) / 2;
+  applyT();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PALETTE RENDERING
+// ═══════════════════════════════════════════════════════════
+function buildPalette() {
+  const el = document.getElementById('palette');
+  el.innerHTML = '';
+  const startIdx = 2; // skip first 2 (transparent/bg) like pixelplanet
+  PALETTE.slice(startIdx).forEach((col, i) => {
+    const idx = i + startIdx;
+    const span = document.createElement('span');
+    const hex = `#${col[0].toString(16).padStart(2,'0')}${col[1].toString(16).padStart(2,'0')}${col[2].toString(16).padStart(2,'0')}`;
+    span.style.backgroundColor = hex;
+    span.title = hex;
+    span.dataset.idx = idx;
+    if (idx === selectedColorIdx) span.className = 'selected';
+    span.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+      document.querySelectorAll('#palette>span').forEach(s => s.className='');
+      span.className = 'selected';
+      selectedColorIdx = idx;
+    });
+    el.appendChild(span);
+  });
+}
+
+function getSelectedHex() {
+  const col = PALETTE[selectedColorIdx];
+  if (!col) return '#000000';
+  return `#${col[0].toString(16).padStart(2,'0')}${col[1].toString(16).padStart(2,'0')}${col[2].toString(16).padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CHUNK RENDERING
+// ═══════════════════════════════════════════════════════════
+function renderChunk(ci, cj, colorData) {
+  // colorData: Uint8Array of color indices, length TILE_SIZE*TILE_SIZE
+  const imgData = ctx.createImageData(TILE_SIZE, TILE_SIZE);
+  const d = imgData.data;
+  for (let i = 0; i < TILE_SIZE * TILE_SIZE; i++) {
+    const col = PALETTE[colorData[i]] || [202,227,255];
+    d[i*4]   = col[0];
+    d[i*4+1] = col[1];
+    d[i*4+2] = col[2];
+    d[i*4+3] = 255;
+  }
+  ctx.putImageData(imgData, ci * TILE_SIZE, cj * TILE_SIZE);
+}
+
+function updatePixelOnCanvas(ci, cj, offset, colorIdx) {
+  const lx = offset % TILE_SIZE;
+  const ly = Math.floor(offset / TILE_SIZE);
+  const px = ci * TILE_SIZE + lx;
+  const py = cj * TILE_SIZE + ly;
+  const col = PALETTE[colorIdx] || [0,0,0];
+  ctx.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
+  ctx.fillRect(px, py, 1, 1);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  LOAD ALL CHUNKS via HTTP (fast initial load)
+// ═══════════════════════════════════════════════════════════
+let chunksLoaded = 0;
+const totalChunks = () => TILES * TILES;
+
+async function loadAllChunks() {
+  setLoadBar(0.1);
+  const promises = [];
+  for (let ci = 0; ci < TILES; ci++) {
+    for (let cj = 0; cj < TILES; cj++) {
+      promises.push(loadChunk(ci, cj));
+    }
+  }
+  await Promise.all(promises);
+  setLoadBar(1);
+  hideLoading();
+}
+
+async function loadChunk(ci, cj) {
+  try {
+    const resp = await fetch(`/chunk/${ci}/${cj}`);
+    if (!resp.ok) return;
+    const buf  = await resp.arrayBuffer();
+    const data = new Uint8Array(buf);
+    renderChunk(ci, cj, data);
+    chunksLoaded++;
+    setLoadBar(0.1 + 0.9 * (chunksLoaded / totalChunks()));
+  } catch(e) {
+    console.warn(`[chunk] ${ci},${cj} failed:`, e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WEBSOCKET
+// ═══════════════════════════════════════════════════════════
+function connectWS() {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const url   = `${proto}://${location.host}/ws`;
+  document.getElementById('load-status').textContent = url;
+
+  ws = new WebSocket(url);
+  ws.binaryType = 'arraybuffer';
+
+  ws.onopen = () => {
+    console.log('[WS] Connected');
+    // Register all chunks for live updates
+    for (let ci = 0; ci < TILES; ci++) {
+      for (let cj = 0; cj < TILES; cj++) {
+        const chunkId = (ci << 8) | cj;
+        const buf = new ArrayBuffer(3);
+        const view = new DataView(buf);
+        view.setUint8(0, 0xA1); // REG_CHUNK
+        view.setUint8(1, ci);
+        view.setUint8(2, cj);
+        ws.send(buf);
+      }
+    }
+    // Auto-login
+    const u = localStorage.getItem('op_user');
+    const p = localStorage.getItem('op_pass');
+    if (u && p) sendJSON({ type:'login', username:u, password:p });
+  };
+
+  ws.onmessage = (e) => {
+    if (typeof e.data === 'string') {
+      handleWSText(e.data);
+    } else {
+      handleWSBinary(e.data);
+    }
+  };
+
+  ws.onclose = () => { console.log('[WS] Disconnected, retry in 3s'); setTimeout(connectWS,3000); };
+  ws.onerror = () => ws.close();
+}
+
+function sendJSON(obj) {
+  if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj));
+}
+
+function handleWSText(raw) {
+  let msg;
+  try { msg = JSON.parse(raw); } catch { return; }
+
+  switch(msg.type) {
+    case 'chunk': {
+      // Server sent a chunk via WS (fallback)
+      const binary = atob(msg.data);
+      const data = new Uint8Array(binary.length);
+      for (let i=0;i<binary.length;i++) data[i]=binary.charCodeAt(i);
+      renderChunk(msg.ci, msg.cj, data);
+      break;
+    }
+    case 'auth_ok': {
+      currentUser = msg.username;
+      noCooldown  = msg.noCooldown;
+      stack       = noCooldown ? MAX_STACK : (msg.stack ?? MAX_STACK);
+      totalPixels = msg.totalPixels ?? 0;
+      lastRegen   = Date.now();
+      updateUserUI();
+      updateHUD();
+      showNotif(`✅ Привіт, ${currentUser}!`);
+      break;
+    }
+    case 'auth_fail':
+      document.getElementById('a-err').textContent = msg.reason;
+      break;
+    case 'stack_update':
+      if (!noCooldown) { stack = msg.stack; updateHUD(); }
+      break;
+    case 'stack_empty':
+      playEmpty();
+      showNotif('⏳ Стак порожній! Зачекайте…');
+      break;
+    default: break;
+  }
+}
+
+function handleWSBinary(buffer) {
+  const data = new DataView(buffer);
+  const op   = data.getUint8(0);
+
+  switch(op) {
+    case 0xC1: { // PIXEL_UPDATE
+      const ci     = data.getUint8(1);
+      const cj     = data.getUint8(2);
+      const offset = (data.getUint8(3) << 16) | data.getUint16(4);
+      const colorIdx = data.getUint8(6);
+      updatePixelOnCanvas(ci, cj, offset, colorIdx);
+      break;
+    }
+    case 0xC2: { // COOLDOWN
+      // server sent cooldown notice
+      break;
+    }
+    case 0xA7: { // ONLINE COUNTER
+      const online = data.getInt16(1);
+      document.getElementById('online-count').textContent = online;
+      break;
+    }
+    default: break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  HOVER OVERLAY
+// ═══════════════════════════════════════════════════════════
+function drawHover(px, py) {
+  hx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  if (px < 0 || py < 0 || px >= CANVAS_SIZE || py >= CANVAS_SIZE) return;
+  const col = PALETTE[selectedColorIdx] || [0,0,0];
+  hx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},0.75)`;
+  hx.fillRect(px, py, 1, 1);
+  hx.strokeStyle = 'rgba(0,0,0,0.7)';
+  hx.lineWidth = 0.3;
+  hx.strokeRect(px+.1, py+.1, .8, .8);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PIXEL PLACEMENT
+// ═══════════════════════════════════════════════════════════
+function placePixel(px, py) {
+  if (px < 0 || py < 0 || px >= CANVAS_SIZE || py >= CANVAS_SIZE) return false;
+  if (!currentUser) {
+    showNotif('⚠️ Увійдіть в акаунт');
+    openModal('auth-modal');
+    return false;
+  }
+  if (!noCooldown && stack <= 0) { playEmpty(); showNotif('⏳ Стак порожній!'); return false; }
+
+  playClick();
+
+  // Optimistic render
+  const col = PALETTE[selectedColorIdx];
+  if (col) {
+    ctx.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
+    ctx.fillRect(px, py, 1, 1);
+  }
+
+  sendJSON({ type:'pixel', x:px, y:py, colorIdx:selectedColorIdx });
+
+  if (!noCooldown) { stack = Math.max(0, stack - 1); updateHUD(); }
+  return true;
+}
+
+function drawLine(x0, y0, x1, y1) {
+  const dx=Math.abs(x1-x0),dy=Math.abs(y1-y0);
+  const sx=x0<x1?1:-1, sy=y0<y1?1:-1;
+  let err=dx-dy, x=x0, y=y0, steps=0;
+  while(true) {
+    if (!noCooldown && stack <= 0) break;
+    placePixel(x, y);
+    if(x===x1&&y===y1) break;
+    const e2=2*err;
+    if(e2>-dy){err-=dy;x+=sx;}
+    if(e2<dx){err+=dx;y+=sy;}
+    if(++steps>4000) break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  HUD UPDATE
+// ═══════════════════════════════════════════════════════════
+let prevStackWas0 = false;
+function updateHUD() {
+  if (noCooldown) {
+    document.getElementById('sc').textContent = '∞';
+    document.getElementById('stackbar-fill').style.width='100%';
+    document.getElementById('stackbar-fill').style.background='linear-gradient(90deg,#f59e0b,#ef4444)';
+    document.getElementById('cooldownbox').style.display='none';
+    return;
+  }
+  document.getElementById('sc').textContent = stack;
+  const pct = (stack / MAX_STACK) * 100;
+  const fill = document.getElementById('stackbar-fill');
+  fill.style.width = pct + '%';
+  fill.style.background = pct > 60
+    ? 'linear-gradient(90deg,#7c3aed,#2563eb)'
+    : pct > 25
+    ? 'linear-gradient(90deg,#f59e0b,#ef4444)'
+    : 'linear-gradient(90deg,#ef4444,#991b1b)';
+
+  // Cooldown box (pixelplanet style: shows wait time when stack not full)
+  const cdBox = document.getElementById('cooldownbox');
+  if (stack < MAX_STACK) {
+    const missing = MAX_STACK - stack;
+    const m = Math.floor(missing / 60);
+    const s = missing % 60;
+    cdBox.textContent = m > 0 ? `${m}:${String(s).padStart(2,'0')}` : `${s}`;
+    cdBox.style.display = 'block';
+  } else {
+    cdBox.style.display = 'none';
+    if (prevStackWas0) { playFull(); }
+  }
+  prevStackWas0 = (stack === 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  REGEN LOOP
+// ═══════════════════════════════════════════════════════════
+function regenLoop() {
+  if (!noCooldown && currentUser) {
+    const now = Date.now();
+    const toAdd = Math.floor((now - lastRegen) / REGEN_MS);
+    if (toAdd > 0 && stack < MAX_STACK) {
+      stack = Math.min(MAX_STACK, stack + toAdd);
+      lastRegen = now - ((now - lastRegen) % REGEN_MS);
+      updateHUD();
+    }
+  }
+  requestAnimationFrame(regenLoop);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  USER UI
+// ═══════════════════════════════════════════════════════════
+function updateUserUI() {
+  const btn = document.getElementById('loginbutton');
+  if (currentUser) {
+    btn.textContent = currentUser.slice(0,1).toUpperCase();
+    btn.title = currentUser + (noCooldown ? ' 👑' : '');
+    btn.classList.add('active');
+    document.getElementById('user-pixels-wrap').style.display='';
+    document.getElementById('user-pixels').textContent = totalPixels;
+  } else {
+    btn.textContent = '👤'; btn.title = 'Увійти'; btn.classList.remove('active');
+    document.getElementById('user-pixels-wrap').style.display='none';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ZOOM
+// ═══════════════════════════════════════════════════════════
+function zoomAt(sx, sy, f) {
+  const ns = Math.min(50, Math.max(0.2, scale*f));
+  const r  = ns/scale;
+  ox = sx - r*(sx-ox); oy = sy - r*(sy-oy);
+  scale = ns; applyT();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SCREEN → CANVAS COORDS
+// ═══════════════════════════════════════════════════════════
+function s2c(sx, sy) {
+  const rect = vp.getBoundingClientRect();
+  return {
+    cx: Math.floor((sx - rect.left - ox) / scale),
+    cy: Math.floor((sy - rect.top  - oy) / scale),
+  };
+}
+
+function updCoords(sx, sy) {
+  const { cx, cy } = s2c(sx, sy);
+  document.getElementById('coorbox').textContent = `(${cx}, ${cy})`;
+  return { cx, cy };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  POINTER INPUT
+// ═══════════════════════════════════════════════════════════
+let activePtr  = {};
+let pencilId   = null, pencilLX=-1, pencilLY=-1;
+let panId      = null, panSX=0, panSY=0, panOX=0, panOY=0;
+let pinchIds   = null, pinchDist=0;
+
+function isUI(e) {
+  return e.target.closest('.palettebox,.actionbuttons,.modal-overlay,#palselbutton,#stackbar-wrap');
+}
+
+vp.addEventListener('pointerdown', e => {
+  if (isUI(e)) return;
+  ensureAudio();
+  vp.setPointerCapture(e.pointerId);
+  activePtr[e.pointerId] = { x:e.clientX, y:e.clientY };
+  const ids = Object.keys(activePtr);
+
+  if (ids.length >= 2) {
+    pencilId = null; panId = null;
+    pinchIds = [+ids[0], +ids[1]];
+    const p0=activePtr[pinchIds[0]], p1=activePtr[pinchIds[1]];
+    pinchDist = Math.hypot(p0.x-p1.x, p0.y-p1.y);
+    return;
+  }
+
+  if (e.pointerType === 'mouse') {
+    if (e.button===1 || e.button===2 || spaceDown) {
+      panId=e.pointerId; panSX=e.clientX; panSY=e.clientY; panOX=ox; panOY=oy;
+      vp.style.cursor='grabbing'; return;
+    }
+    if (e.button===0) {
+      const {cx,cy} = updCoords(e.clientX, e.clientY);
+      if (tool==='pixel') { placePixel(cx,cy); }
+      else { pencilId=e.pointerId; pencilLX=cx; pencilLY=cy; placePixel(cx,cy); }
+    }
+  } else {
+    // Touch
+    if (tool==='pencil') {
+      pencilId=e.pointerId;
+      const {cx,cy}=s2c(e.clientX,e.clientY);
+      pencilLX=cx; pencilLY=cy; placePixel(cx,cy);
+    } else {
+      panId=e.pointerId; panSX=e.clientX; panSY=e.clientY; panOX=ox; panOY=oy;
+    }
+  }
+});
+
+vp.addEventListener('pointermove', e => {
+  if (!activePtr[e.pointerId]) return;
+  activePtr[e.pointerId] = { x:e.clientX, y:e.clientY };
+  const ids = Object.keys(activePtr).map(Number);
+
+  if (pinchIds && ids.length>=2 && pinchIds.every(id=>activePtr[id])) {
+    const p0=activePtr[pinchIds[0]], p1=activePtr[pinchIds[1]];
+    const d=Math.hypot(p0.x-p1.x, p0.y-p1.y);
+    const mx=(p0.x+p1.x)/2, my=(p0.y+p1.y)/2;
+    if (pinchDist>0) zoomAt(mx, my, d/pinchDist);
+    pinchDist=d; return;
+  }
+
+  if (e.pointerId===pencilId) {
+    const {cx,cy}=s2c(e.clientX,e.clientY);
+    updCoords(e.clientX,e.clientY);
+    if (cx!==pencilLX || cy!==pencilLY) {
+      drawLine(pencilLX,pencilLY,cx,cy);
+      pencilLX=cx; pencilLY=cy;
+    }
+    return;
+  }
+
+  if (e.pointerId===panId) {
+    ox=panOX+(e.clientX-panSX); oy=panOY+(e.clientY-panSY);
+    applyT(); hx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE); return;
+  }
+
+  if (e.pointerType==='mouse') {
+    const {cx,cy}=updCoords(e.clientX,e.clientY);
+    drawHover(cx,cy);
+  }
+});
+
+vp.addEventListener('pointerup', e => {
+  const prev=activePtr[e.pointerId];
+  delete activePtr[e.pointerId];
+  if (pinchIds) { pinchIds=null; pinchDist=0; }
+  if (e.pointerId===pencilId) { pencilId=null; pencilLX=-1; pencilLY=-1; }
+  if (e.pointerId===panId) {
+    panId=null;
+    if (e.pointerType!=='mouse' && tool==='pixel' && prev) {
+      const moved=Math.hypot(e.clientX-panSX, e.clientY-panSY);
+      if (moved<8) { const {cx,cy}=s2c(e.clientX,e.clientY); placePixel(cx,cy); }
+    }
+    if (!spaceDown) vp.style.cursor = tool==='pencil'?'crosshair':'crosshair';
+  }
+});
+
+vp.addEventListener('pointercancel', e => {
+  delete activePtr[e.pointerId];
+  if (e.pointerId===pencilId) pencilId=null;
+  if (e.pointerId===panId) panId=null;
+  pinchIds=null;
+});
+
+vp.addEventListener('wheel', e => {
+  e.preventDefault();
+  zoomAt(e.clientX, e.clientY, e.deltaY<0 ? 1.2 : 1/1.2);
+}, {passive:false});
+
+vp.addEventListener('contextmenu', e => e.preventDefault());
+
+// ═══════════════════════════════════════════════════════════
+//  BUTTONS
+// ═══════════════════════════════════════════════════════════
+document.getElementById('zoom-in-btn').onclick = () => zoomAt(window.innerWidth/2,window.innerHeight/2,1.5);
+document.getElementById('zoom-out-btn').onclick = () => zoomAt(window.innerWidth/2,window.innerHeight/2,1/1.5);
+
+document.getElementById('loginbutton').onclick = () => {
+  if (currentUser) { showNotif(`👤 ${currentUser}${noCooldown?' 👑 Admin':''}`); }
+  else openModal('auth-modal');
+};
+
+let pencilActive = false;
+document.getElementById('pencilbutton').onclick = () => {
+  pencilActive = !pencilActive;
+  tool = pencilActive ? 'pencil' : 'pixel';
+  document.getElementById('pencilbutton').classList.toggle('active', pencilActive);
+  showNotif(pencilActive ? '✏️ Олівець увімкнено' : '🖊 Піксель увімкнено');
+};
+
+document.getElementById('palselbutton').onclick = () => {
+  paletteOpen = !paletteOpen;
+  document.getElementById('palette').style.display = paletteOpen ? 'flex' : 'none';
+  document.getElementById('stackbar-wrap').style.display = paletteOpen ? '' : 'none';
+};
+
+document.getElementById('downloadbutton').onclick = () => {
+  const a = document.createElement('a');
+  a.download = 'okakpix_canvas.png';
+  a.href = mc.toDataURL('image/png');
+  a.click();
+  showNotif('💾 Збережено!');
+};
+
+document.getElementById('helpbutton').onclick = () => openModal('help-modal');
+document.getElementById('menubutton').onclick = () => showNotif('📋 Меню — скоро буде!');
+document.getElementById('settingsbutton').onclick = () => showNotif('⚙️ Налаштування — скоро буде!');
+
+// ═══════════════════════════════════════════════════════════
+//  KEYBOARD
+// ═══════════════════════════════════════════════════════════
+window.addEventListener('keydown', e => {
+  if (e.target.tagName==='INPUT') return;
+  if (e.code==='Space') { spaceDown=true; vp.style.cursor='grab'; e.preventDefault(); }
+  if (e.code==='Equal'||e.code==='NumpadAdd') zoomAt(window.innerWidth/2,window.innerHeight/2,1.25);
+  if (e.code==='Minus'||e.code==='NumpadSubtract') zoomAt(window.innerWidth/2,window.innerHeight/2,.8);
+  if (e.key==='1') { tool='pixel'; pencilActive=false; document.getElementById('pencilbutton').classList.remove('active'); }
+  if (e.key==='2') { tool='pencil'; pencilActive=true; document.getElementById('pencilbutton').classList.add('active'); }
+});
+window.addEventListener('keyup', e => {
+  if (e.code==='Space') { spaceDown=false; vp.style.cursor='crosshair'; }
+});
+window.addEventListener('resize', center);
+
+// ═══════════════════════════════════════════════════════════
+//  AUTH MODAL
+// ═══════════════════════════════════════════════════════════
+let authMode = 'login';
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.getElementById('auth-close').onclick = () => closeModal('auth-modal');
+document.getElementById('help-close').onclick  = () => closeModal('help-modal');
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); });
+});
+
+document.querySelectorAll('.modal-tab').forEach(t => {
+  t.onclick = () => {
+    authMode = t.dataset.t;
+    document.querySelectorAll('.modal-tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('a-pass2').style.display = authMode==='register' ? '' : 'none';
+    document.getElementById('a-submit').textContent   = authMode==='register' ? 'Зареєструватись' : 'Увійти';
+    document.getElementById('a-err').textContent = '';
+  };
+});
+
+document.getElementById('a-submit').onclick = () => {
+  const u = document.getElementById('a-user').value.trim();
+  const p = document.getElementById('a-pass').value;
+  const p2= document.getElementById('a-pass2').value;
+  const err= document.getElementById('a-err');
+  if (!u||!p) { err.textContent='Заповніть всі поля'; return; }
+  if (authMode==='register' && p!==p2) { err.textContent='Паролі не збігаються'; return; }
+  err.textContent='';
+  localStorage.setItem('op_user',u); localStorage.setItem('op_pass',p);
+  sendJSON({ type:authMode, username:u, password:p });
+};
+
+['a-user','a-pass','a-pass2'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key==='Enter') document.getElementById('a-submit').click();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════
+let ntimer;
+function showNotif(msg) {
+  const n=document.getElementById('notif');
+  n.textContent=msg; n.style.opacity='1';
+  clearTimeout(ntimer);
+  ntimer=setTimeout(()=>n.style.opacity='0',2400);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  LOADING
+// ═══════════════════════════════════════════════════════════
+function setLoadBar(f) {
+  document.getElementById('load-bar').style.width = Math.round(f*100)+'%';
+}
+let loadingHidden=false;
+function hideLoading() {
+  if (loadingHidden) return; loadingHidden=true;
+  const el=document.getElementById('loading');
+  el.style.transition='opacity .6s';
+  el.style.opacity='0';
+  setTimeout(()=>el.style.display='none',600);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+async function init() {
+  // 1. Fetch canvas config
+  try {
+    const resp = await fetch('/api/canvas');
+    const cfg  = await resp.json();
+    CANVAS_SIZE = cfg.size;
+    TILE_SIZE   = cfg.tileSize;
+    TILES       = cfg.tiles;
+    MAX_STACK   = cfg.maxStack;
+    REGEN_MS    = cfg.regenMs;
+    PALETTE     = cfg.palette;
+    stack       = MAX_STACK;
+  } catch(e) {
+    console.error('[init] Failed to load canvas config:', e);
+    // fallback defaults already set at top
+    PALETTE = [
+      [202,227,255],[255,255,255],[255,255,255],[228,228,228],
+      [196,196,196],[136,136,136],[78,78,78],[0,0,0],
+      [244,179,174],[255,167,209],[255,84,178],[255,101,101],
+      [229,0,0],[154,0,0],[254,164,96],[229,149,0],
+      [160,106,66],[96,64,40],[245,223,176],[255,248,137],
+      [229,217,0],[148,224,68],[2,190,1],[104,131,56],
+      [0,101,19],[202,227,255],[0,211,221],[0,131,199],
+      [0,0,234],[25,25,115],[207,110,228],[130,0,128],
+    ];
+  }
+
+  // 2. Setup canvas
+  resizeCanvas();
+  buildPalette();
+  center();
+  updateHUD();
+  requestAnimationFrame(regenLoop);
+
+  // 3. Load chunks via HTTP
+  setLoadBar(0.05);
+  document.getElementById('load-sub').textContent = 'Завантаження чанків…';
+  await loadAllChunks();
+
+  // 4. Connect WS for live updates
+  connectWS();
+}
+
+init();
+</script>
+</body>
+</html>
