@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>OkakPix</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{position:fixed;inset:0;overflow:hidden;background:#e2e3ff;font-family:'Montserrat','Segoe UI',sans-serif;user-select:none;-webkit-tap-highlight-color:transparent;}
+#vp{position:fixed;inset:0;overflow:hidden;touch-action:none;cursor:crosshair;}
+#cw{position:absolute;transform-origin:0 0;image-rendering:pixelated;image-rendering:crisp-edges;}
+#mc,#hc{display:block;image-rendering:pixelated;image-rendering:crisp-edges;image-rendering:-moz-crisp-edges;}
+#hc{position:absolute;top:0;left:0;pointer-events:none;}
+
+/* shared box */
+.ppbox{position:fixed;background:rgba(226,226,226,0.93);color:#000;border:1px solid #000;font-size:13px;font-weight:600;z-index:20;white-space:nowrap;}
+.ppbtn{position:fixed;background:rgba(226,226,226,0.93);color:#000;border:1px solid #000;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;z-index:20;border-radius:50%;transition:background .12s;}
+.ppbtn:hover{background:rgba(200,200,200,1);}
+.ppbtn.active{background:rgba(180,180,255,.95);border-color:#6644aa;}
+
+/* cooldown top center */
+#cdbox{top:14px;left:50%;transform:translateX(-50%);padding:0 14px;height:28px;line-height:28px;font-size:14px;font-weight:800;border-radius:4px;display:none;font-family:monospace;}
+
+/* coords bottom left */
+#coorbox{bottom:16px;left:16px;padding:0 14px;height:36px;line-height:36px;}
+
+/* online above coords */
+#onlinebox{bottom:57px;left:16px;padding:0 14px;height:36px;line-height:36px;}
+
+/* stack bar above palette */
+#stackwrap{position:fixed;bottom:138px;right:16px;z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:3px;pointer-events:none;}
+#stacklabel{font-size:11px;color:rgba(0,0,0,.55);font-weight:700;}
+#sb-bg{width:130px;height:6px;background:rgba(0,0,0,.12);border-radius:99px;overflow:hidden;}
+#sb-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#2563eb);transition:width .3s,background .3s;}
+
+/* PALETTE — bottom right */
+#palette-wrap{position:fixed;bottom:16px;right:16px;z-index:21;background:rgba(226,226,226,0.95);border:1px solid #000;border-radius:6px;padding:5px;}
+#palette-grid{display:grid;grid-template-columns:repeat(8,26px);gap:2px;}
+.sw{width:26px;height:26px;cursor:pointer;border:2px solid transparent;border-radius:3px;transition:transform .08s,border-color .08s;}
+.sw:hover{transform:scale(1.18);z-index:1;position:relative;}
+.sw.sel{border-color:#000!important;transform:scale(1.22);z-index:2;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,.5);}
+
+/* brush row */
+#brush-row{display:flex;gap:3px;justify-content:center;padding:4px 0 1px;border-top:1px solid rgba(0,0,0,.15);margin-top:3px;}
+.bsz{flex:1;padding:3px 0;text-align:center;font-size:11px;font-weight:700;background:rgba(255,255,255,.5);border:1px solid rgba(0,0,0,.25);border-radius:3px;cursor:pointer;transition:background .1s;}
+.bsz:hover{background:rgba(200,200,255,.7);}
+.bsz.sel{background:rgba(130,100,255,.6);border-color:#6644aa;color:#fff;}
+
+/* left buttons */
+#btn-login{top:16px;left:16px;}
+#btn-pencil{top:57px;left:16px;}
+#btn-save{top:98px;left:16px;}
+#btn-help{top:139px;left:16px;}
+#btn-zi{top:16px;right:16px;border-radius:4px;}
+#btn-zo{top:57px;right:16px;border-radius:4px;}
+#btn-chat{top:98px;right:16px;border-radius:4px;}
+
+/* chat panel */
+#chat-panel{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);width:320px;max-width:calc(100vw - 32px);background:rgba(226,226,226,0.95);border:1px solid #000;border-radius:8px;z-index:20;display:none;flex-direction:column;overflow:hidden;}
+#chat-panel.open{display:flex;}
+#chat-msgs{height:180px;overflow-y:auto;padding:8px 10px;font-size:12px;line-height:1.6;display:flex;flex-direction:column;gap:2px;}
+#chat-msgs::-webkit-scrollbar{width:4px;}
+#chat-msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:99px;}
+.chat-msg{color:#222;word-break:break-word;}
+.chat-msg .chat-user{font-weight:800;color:#7c3aed;}
+.chat-sys{font-style:italic;color:#888;font-size:11px;}
+#chat-input-row{display:flex;border-top:1px solid rgba(0,0,0,.15);gap:0;}
+#chat-inp{flex:1;border:none;background:transparent;padding:8px 10px;font-size:13px;outline:none;font-family:inherit;}
+#chat-send{background:#7c3aed;color:#fff;border:none;padding:8px 14px;font-size:13px;cursor:pointer;font-weight:800;}
+#chat-send:hover{background:#6d28d9;}
+
+/* notif */
+#notif{position:fixed;top:52px;left:50%;transform:translateX(-50%);background:rgba(40,40,40,.88);color:#fff;padding:5px 16px;border-radius:4px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;}
+
+/* modal */
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);z-index:100;align-items:center;justify-content:center;}
+.mbg.open{display:flex;}
+.mbox{background:#fff;border:1px solid #ccc;border-radius:8px;padding:22px 20px;width:290px;max-width:calc(100vw - 20px);display:flex;flex-direction:column;gap:11px;position:relative;box-shadow:0 8px 28px rgba(0,0,0,.2);}
+.mbox h2{font-size:17px;font-weight:800;text-align:center;color:#222;}
+.mtabs{display:flex;border-bottom:1px solid #ddd;}
+.mtab{flex:1;padding:7px;text-align:center;cursor:pointer;font-size:12px;color:#888;border-bottom:2px solid transparent;transition:all .12s;}
+.mtab.active{color:#7c3aed;border-bottom-color:#7c3aed;font-weight:800;}
+.minp{border:1px solid #d5d5d5;border-radius:4px;padding:8px 10px;font-size:13px;width:100%;outline:none;font-family:inherit;transition:border-color .12s;}
+.minp:focus{border-color:#7c3aed;}
+.minp::placeholder{color:#aaa;}
+.mbtn{background:#7c3aed;color:#fff;border:none;border-radius:4px;padding:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .12s;}
+.mbtn:hover{background:#6d28d9;}
+.merr{font-size:11px;color:#dc2626;text-align:center;min-height:13px;}
+.mx{position:absolute;top:9px;right:11px;background:none;border:none;font-size:18px;cursor:pointer;color:#999;}
+.mx:hover{color:#333;}
+
+/* loading */
+#loading{position:fixed;inset:0;z-index:999;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+#load-logo{font-size:48px;font-weight:900;letter-spacing:-2px;background:linear-gradient(90deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+#load-sub{font-size:12px;color:rgba(255,255,255,.35);}
+#load-bar-bg{width:220px;height:4px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+#load-bar{height:100%;background:linear-gradient(90deg,#8b5cf6,#34d399);border-radius:99px;width:3%;transition:width .25s;}
+#load-info{font-size:10px;color:rgba(255,255,255,.2);font-family:monospace;}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div id="load-logo">OkakPix</div>
+  <div id="load-sub">Завантаження…</div>
+  <div id="load-bar-bg"><div id="load-bar"></div></div>
+  <div id="load-info">з'єднання…</div>
+</div>
+
+<div id="vp"><div id="cw"><canvas id="mc"></canvas><canvas id="hc"></canvas></div></div>
+
+<div class="ppbox" id="cdbox"></div>
+<div class="ppbox" id="coorbox">(0, 0)</div>
+<div class="ppbox" id="onlinebox"><span id="ocnt">0</span> 👤 <span id="upx-wrap" style="display:none"> · <span id="upx">0</span> 🖊</span></div>
+
+<div class="ppbtn" id="btn-login" title="Вхід">👤</div>
+<div class="ppbtn" id="btn-pencil" title="Олівець [2]">✏️</div>
+<div class="ppbtn" id="btn-save" title="Зберегти PNG">💾</div>
+<div class="ppbtn" id="btn-help" title="Допомога">❓</div>
+<div class="ppbtn" id="btn-zi" title="Збільшити">+</div>
+<div class="ppbtn" id="btn-zo" title="Зменшити">−</div>
+<div class="ppbtn" id="btn-chat" title="Чат [C]">💬</div>
+
+<div id="stackwrap">
+  <div id="stacklabel">Стак: <span id="sc">120</span>/120</div>
+  <div id="sb-bg"><div id="sb-fill" style="width:100%"></div></div>
+</div>
+
+<div id="palette-wrap">
+  <div id="palette-grid"></div>
+  <div id="brush-row">
+    <div class="bsz sel" data-bs="1">1×1</div>
+    <div class="bsz" data-bs="3">3×3</div>
+    <div class="bsz" data-bs="5">5×5</div>
+    <div class="bsz" data-bs="8">8×8</div>
+  </div>
+</div>
+
+<div id="notif"></div>
+
+<!-- AUTH MODAL -->
+<div class="mbg" id="auth-bg">
+  <div class="mbox">
+    <button class="mx" id="auth-x">✕</button>
+    <h2>OkakPix</h2>
+    <div class="mtabs">
+      <div class="mtab active" data-t="login">Вхід</div>
+      <div class="mtab" data-t="register">Реєстрація</div>
+    </div>
+    <input class="minp" id="a-name" type="text" placeholder="Нікнейм" autocomplete="username">
+    <input class="minp" id="a-pass" type="password" placeholder="Пароль" autocomplete="current-password">
+    <input class="minp" id="a-pass2" type="password" placeholder="Повтор пароля" style="display:none" autocomplete="new-password">
+    <button class="mbtn" id="a-sub">Увійти</button>
+    <div class="merr" id="a-err"></div>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="mbg" id="help-bg">
+  <div class="mbox">
+    <button class="mx" id="help-x">✕</button>
+    <h2>❓ Допомога</h2>
+    <div style="font-size:12px;line-height:1.9;color:#444">
+      <b>ЛКМ</b> — поставити піксель<br>
+      <b>✏️ Олівець</b> — утримуй та малюй<br>
+      <b>ПКМ / Пробіл+ЛКМ</b> — переміщення<br>
+      <b>Колесо миші</b> — зум<br>
+      <b>2 пальці</b> — пінч-зум на телефоні<br><br>
+      <b>Стак:</b> 120 пікселів, +1/сек<br>
+      <b>Якщо піксель вже того кольору</b> — не витрачає стак!<br><br>
+      <kbd>1</kbd> Піксель &nbsp; <kbd>2</kbd> Олівець &nbsp; <kbd>+/-</kbd> Зум
+    </div>
+  </div>
+</div>
+
+<!-- CHAT PANEL -->
+<div id="chat-panel">
+  <div id="chat-msgs"></div>
+  <div id="chat-input-row">
+    <input id="chat-inp" type="text" placeholder="Написати повідомлення…" maxlength="200" autocomplete="off">
+    <button id="chat-send">▶</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+let CANVAS_SIZE=4096,TILE_SIZE=256,TILES=16,MAX_STACK=120,REGEN_MS=1000,PALETTE=[];
+let selIdx=12,brushSz=1,tool='pixel',scale=3,ox=0,oy=0,spaceDown=false;
+let user=null,noCD=false,stack=120,lastRegen=Date.now(),ws=null;
+
+// ── AUDIO ──────────────────────────────────────────────────
+let AC=null;
+function ensureAC(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();}
+function beep(f,d,t='square',v=.12){try{ensureAC();const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.start();o.stop(AC.currentTime+d);}catch(e){}}
+function sndClick(){beep(1100,.05);}
+function sndEmpty(){beep(160,.35,'sawtooth',.18);}
+function sndFull(){[523,659,784].forEach((f,i)=>setTimeout(()=>beep(f,.18),i*90));}
+
+// ── CANVAS ─────────────────────────────────────────────────
+const mc=document.getElementById('mc'),hc=document.getElementById('hc');
+const ctx=mc.getContext('2d'),hx=hc.getContext('2d');
+const cw=document.getElementById('cw'),vp=document.getElementById('vp');
+function initCanvas(){mc.width=CANVAS_SIZE;mc.height=CANVAS_SIZE;hc.width=CANVAS_SIZE;hc.height=CANVAS_SIZE;}
+function applyT(){cw.style.transform=`translate(${ox}px,${oy}px) scale(${scale})`;}
+function center(){ox=(innerWidth-CANVAS_SIZE*scale)/2;oy=(innerHeight-CANVAS_SIZE*scale)/2;applyT();}
+
+// ── PALETTE ────────────────────────────────────────────────
+function buildPalette(){
+  const g=document.getElementById('palette-grid');g.innerHTML='';
+  PALETTE.slice(2).forEach((col,i)=>{
+    const idx=i+2,s=document.createElement('div');
+    s.className='sw'+(idx===selIdx?' sel':'');
+    s.style.background=`#${col.map(c=>c.toString(16).padStart(2,'0')).join('')}`;
+    s.dataset.idx=idx;
+    s.addEventListener('pointerdown',e=>{e.stopPropagation();document.querySelectorAll('.sw').forEach(x=>x.classList.remove('sel'));s.classList.add('sel');selIdx=idx;});
+    g.appendChild(s);
+  });
+}
+document.querySelectorAll('.bsz').forEach(b=>{
+  b.addEventListener('pointerdown',e=>{e.stopPropagation();document.querySelectorAll('.bsz').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');brushSz=+b.dataset.bs;});
+});
+function colRGB(i){return PALETTE[i]||[0,0,0];}
+
+// ── CHUNK RENDERING ────────────────────────────────────────
+function renderChunk(ci,cj,data){
+  const img=ctx.createImageData(TILE_SIZE,TILE_SIZE),d=img.data;
+  for(let i=0;i<TILE_SIZE*TILE_SIZE;i++){const[r,g,b]=colRGB(data[i]);d[i*4]=r;d[i*4+1]=g;d[i*4+2]=b;d[i*4+3]=255;}
+  ctx.putImageData(img,ci*TILE_SIZE,cj*TILE_SIZE);
+}
+function applyPixel(ci,cj,offset,colorIdx){
+  const lx=offset%TILE_SIZE,ly=Math.floor(offset/TILE_SIZE),[r,g,b]=colRGB(colorIdx);
+  ctx.fillStyle=`rgb(${r},${g},${b})`;ctx.fillRect(ci*TILE_SIZE+lx,cj*TILE_SIZE+ly,1,1);
+}
+
+// ── HTTP CHUNK LOAD ────────────────────────────────────────
+let chunksLoaded=0;
+async function loadAllChunks(){
+  const ps=[];
+  for(let ci=0;ci<TILES;ci++) for(let cj=0;cj<TILES;cj++) ps.push(fetchChunk(ci,cj));
+  await Promise.all(ps);
+}
+async function fetchChunk(ci,cj){
+  try{
+    const r=await fetch(`/chunk/${ci}/${cj}`);if(!r.ok)return;
+    renderChunk(ci,cj,new Uint8Array(await r.arrayBuffer()));
+    chunksLoaded++;
+    setLoadBar(0.1+0.88*(chunksLoaded/(TILES*TILES)));
+    document.getElementById('load-info').textContent=`Чанки: ${chunksLoaded}/${TILES*TILES}`;
+  }catch(e){}
+}
+
+// ── WEBSOCKET ──────────────────────────────────────────────
+function connectWS(){
+  const url=`${location.protocol==='https:'?'wss':'ws'}://${location.host}/ws`;
+  ws=new WebSocket(url);ws.binaryType='arraybuffer';
+  ws.onopen=()=>{
+    for(let ci=0;ci<TILES;ci++) for(let cj=0;cj<TILES;cj++){
+      const b=new ArrayBuffer(3),v=new DataView(b);v.setUint8(0,0xA1);v.setUint8(1,ci);v.setUint8(2,cj);ws.send(b);
+    }
+    const u=localStorage.getItem('op_u'),p=localStorage.getItem('op_p');
+    if(u&&p) wsSend({type:'login',username:u,password:p});
+  };
+  ws.onmessage=e=>{if(typeof e.data==='string')onText(e.data);else onBin(e.data);};
+  ws.onclose=()=>setTimeout(connectWS,3000);
+  ws.onerror=()=>ws.close();
+}
+function wsSend(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o));}
+
+function onText(raw){
+  let m;try{m=JSON.parse(raw);}catch{return;}
+  if(m.type==='chunk'){
+    const bin=atob(m.data),d=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++)d[i]=bin.charCodeAt(i);
+    renderChunk(m.ci,m.cj,d);
+  } else if(m.type==='chat'){
+    addChatMsg(m.username,m.text);
+    if(!chatOpen)notify(`💬 ${m.username}: ${m.text.slice(0,30)}`);
+  } else if(m.type==='auth_ok'){
+    user=m.username;noCD=m.noCooldown;
+    stack=noCD?MAX_STACK:(m.stack??MAX_STACK);lastRegen=Date.now();
+    updateUserUI();updateHUD();closeModal('auth-bg');
+    notify(`✅ Привіт, ${user}!`);
+    addChatSys(`🟣 ${user} приєднався`);
+    if(m.totalPixels) document.getElementById('upx').textContent=m.totalPixels;
+  } else if(m.type==='auth_fail'){
+    document.getElementById('a-err').textContent=m.reason;
+  } else if(m.type==='stack_update'){
+    if(!noCD){const prev=stack;stack=m.stack;if(prev===0&&stack>0){}updateHUD();}
+  } else if(m.type==='stack_empty'){
+    sndEmpty();notify('⏳ Стак порожній!');
+  }
+}
+function onBin(buf){
+  const d=new DataView(buf),op=d.getUint8(0);
+  if(op===0xC1){const ci=d.getUint8(1),cj=d.getUint8(2),offset=(d.getUint8(3)<<16)|d.getUint16(4),colorIdx=d.getUint8(6);applyPixel(ci,cj,offset,colorIdx);}
+  else if(op===0xA7){document.getElementById('ocnt').textContent=d.getInt16(1);}
+}
+
+// ── HOVER ──────────────────────────────────────────────────
+function drawHover(x,y){
+  hx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
+  if(x<0||y<0||x>=CANVAS_SIZE||y>=CANVAS_SIZE)return;
+  const[r,g,b]=colRGB(selIdx),half=Math.floor(brushSz/2);
+  hx.fillStyle=`rgba(${r},${g},${b},.7)`;hx.fillRect(x-half,y-half,brushSz,brushSz);
+  hx.strokeStyle='rgba(0,0,0,.7)';hx.lineWidth=.25;hx.strokeRect(x-half+.1,y-half+.1,brushSz-.2,brushSz-.2);
+}
+
+// ── PLACE PIXEL ────────────────────────────────────────────
+function placeAt(cx,cy){
+  if(!user){notify('⚠️ Увійдіть в акаунт');openModal('auth-bg');return false;}
+  if(!noCD&&stack<=0){sndEmpty();notify('⏳ Стак порожній!');return false;}
+  sndClick();
+  const[r,g,b]=colRGB(selIdx),half=Math.floor(brushSz/2);
+  ctx.fillStyle=`rgb(${r},${g},${b})`;ctx.fillRect(cx-half,cy-half,brushSz,brushSz);
+  wsSend({type:'pixel',x:cx,y:cy,colorIdx:selIdx,brushSize:brushSz});
+  if(!noCD){stack=Math.max(0,stack-brushSz*brushSz);updateHUD();}
+  // update pixel counter
+  const upxEl=document.getElementById('upx');upxEl.textContent=+upxEl.textContent+(brushSz*brushSz);
+  return true;
+}
+function drawLineB(x0,y0,x1,y1){
+  const dx=Math.abs(x1-x0),dy=Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1;
+  let err=dx-dy,x=x0,y=y0,n=0;
+  while(true){if(!noCD&&stack<=0)break;placeAt(x,y);if(x===x1&&y===y1)break;const e2=2*err;if(e2>-dy){err-=dy;x+=sx;}if(e2<dx){err+=dx;y+=sy;}if(++n>5000)break;}
+}
+
+// ── HUD ────────────────────────────────────────────────────
+let prevFull=true;
+function updateHUD(){
+  const cd=document.getElementById('cdbox');
+  if(noCD){document.getElementById('sc').textContent='∞';document.getElementById('sb-fill').style.cssText='width:100%;background:linear-gradient(90deg,#f59e0b,#ef4444)';cd.style.display='none';return;}
+  document.getElementById('sc').textContent=stack;
+  const pct=(stack/MAX_STACK)*100,f=document.getElementById('sb-fill');
+  f.style.width=pct+'%';f.style.background=pct>60?'linear-gradient(90deg,#7c3aed,#2563eb)':pct>25?'linear-gradient(90deg,#f59e0b,#ef4444)':'linear-gradient(90deg,#ef4444,#991b1b)';
+  if(stack<MAX_STACK){const m=Math.floor((MAX_STACK-stack)/60),s=(MAX_STACK-stack)%60;cd.textContent=m>0?`${m}:${String(s).padStart(2,'0')}`:`${s}s`;cd.style.display='block';}
+  else{cd.style.display='none';if(!prevFull)sndFull();}
+  prevFull=(stack===MAX_STACK);
+}
+function regenLoop(){
+  if(!noCD&&user){const now=Date.now(),add=Math.floor((now-lastRegen)/REGEN_MS);if(add>0&&stack<MAX_STACK){stack=Math.min(MAX_STACK,stack+add);lastRegen=now-((now-lastRegen)%REGEN_MS);updateHUD();}}
+  requestAnimationFrame(regenLoop);
+}
+function updateUserUI(){
+  const b=document.getElementById('btn-login');
+  if(user){b.textContent=user[0].toUpperCase();b.title=user+(noCD?' 👑':'');b.classList.add('active');document.getElementById('upx-wrap').style.display='';}
+  else{b.textContent='👤';b.title='Вхід';b.classList.remove('active');document.getElementById('upx-wrap').style.display='none';}
+}
+
+// ── ZOOM ───────────────────────────────────────────────────
+function zoomAt(sx,sy,f){const ns=Math.min(50,Math.max(.15,scale*f)),r=ns/scale;ox=sx-r*(sx-ox);oy=sy-r*(sy-oy);scale=ns;applyT();}
+
+// ── COORDS ─────────────────────────────────────────────────
+function s2c(sx,sy){const rect=vp.getBoundingClientRect();return{cx:Math.floor((sx-rect.left-ox)/scale),cy:Math.floor((sy-rect.top-oy)/scale)};}
+function updC(sx,sy){const{cx,cy}=s2c(sx,sy);document.getElementById('coorbox').textContent=`(${cx}, ${cy})`;return{cx,cy};}
+
+// ── POINTER INPUT ──────────────────────────────────────────
+let AP={},pencilId=null,pencilLX=-1,pencilLY=-1,panId=null,panSX=0,panSY=0,panOX=0,panOY=0,pinchIds=null,pinchD=0;
+function isUI(e){return e.target.closest('#palette-wrap,.ppbtn,.mbg,#stackwrap');}
+
+vp.addEventListener('pointerdown',e=>{
+  if(isUI(e))return;ensureAC();vp.setPointerCapture(e.pointerId);AP[e.pointerId]={x:e.clientX,y:e.clientY};
+  const ids=Object.keys(AP);
+  if(ids.length>=2){pencilId=null;panId=null;pinchIds=[+ids[0],+ids[1]];const p0=AP[pinchIds[0]],p1=AP[pinchIds[1]];pinchD=Math.hypot(p0.x-p1.x,p0.y-p1.y);return;}
+  if(e.pointerType==='mouse'){
+    if(e.button===1||e.button===2||spaceDown){panId=e.pointerId;panSX=e.clientX;panSY=e.clientY;panOX=ox;panOY=oy;vp.style.cursor='grabbing';return;}
+    if(e.button===0){const{cx,cy}=updC(e.clientX,e.clientY);if(tool==='pixel')placeAt(cx,cy);else{pencilId=e.pointerId;pencilLX=cx;pencilLY=cy;placeAt(cx,cy);}}
+  } else {
+    if(tool==='pencil'){pencilId=e.pointerId;const{cx,cy}=s2c(e.clientX,e.clientY);pencilLX=cx;pencilLY=cy;placeAt(cx,cy);}
+    else{panId=e.pointerId;panSX=e.clientX;panSY=e.clientY;panOX=ox;panOY=oy;}
+  }
+});
+vp.addEventListener('pointermove',e=>{
+  if(!AP[e.pointerId])return;AP[e.pointerId]={x:e.clientX,y:e.clientY};
+  if(pinchIds&&Object.keys(AP).length>=2&&pinchIds.every(id=>AP[id])){const p0=AP[pinchIds[0]],p1=AP[pinchIds[1]],d=Math.hypot(p0.x-p1.x,p0.y-p1.y);zoomAt((p0.x+p1.x)/2,(p0.y+p1.y)/2,d/pinchD);pinchD=d;return;}
+  if(e.pointerId===pencilId){const{cx,cy}=s2c(e.clientX,e.clientY);updC(e.clientX,e.clientY);if(cx!==pencilLX||cy!==pencilLY){drawLineB(pencilLX,pencilLY,cx,cy);pencilLX=cx;pencilLY=cy;}return;}
+  if(e.pointerId===panId){ox=panOX+(e.clientX-panSX);oy=panOY+(e.clientY-panSY);applyT();hx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);return;}
+  if(e.pointerType==='mouse'){const{cx,cy}=updC(e.clientX,e.clientY);drawHover(cx,cy);}
+});
+vp.addEventListener('pointerup',e=>{
+  const prev=AP[e.pointerId];delete AP[e.pointerId];
+  if(pinchIds){pinchIds=null;pinchD=0;}
+  if(e.pointerId===pencilId){pencilId=null;pencilLX=-1;pencilLY=-1;}
+  if(e.pointerId===panId){panId=null;if(e.pointerType!=='mouse'&&tool==='pixel'&&prev&&Math.hypot(e.clientX-panSX,e.clientY-panSY)<8){const{cx,cy}=s2c(e.clientX,e.clientY);placeAt(cx,cy);}if(!spaceDown)vp.style.cursor='crosshair';}
+});
+vp.addEventListener('pointercancel',e=>{delete AP[e.pointerId];if(e.pointerId===pencilId)pencilId=null;if(e.pointerId===panId)panId=null;pinchIds=null;});
+vp.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.clientX,e.clientY,e.deltaY<0?1.2:1/1.2);},{passive:false});
+vp.addEventListener('contextmenu',e=>e.preventDefault());
+
+// ── BUTTONS ────────────────────────────────────────────────
+document.getElementById('btn-login').onclick=()=>{if(user)notify(`👤 ${user}${noCD?' 👑 Admin':''}`);else openModal('auth-bg');};
+let pencilOn=false;
+document.getElementById('btn-pencil').onclick=()=>{pencilOn=!pencilOn;tool=pencilOn?'pencil':'pixel';document.getElementById('btn-pencil').classList.toggle('active',pencilOn);notify(pencilOn?'✏️ Олівець':'🖊 Піксель');};
+document.getElementById('btn-save').onclick=()=>{const a=document.createElement('a');a.download='okakpix.png';a.href=mc.toDataURL();a.click();notify('💾 Збережено!');};
+document.getElementById('btn-help').onclick=()=>openModal('help-bg');
+document.getElementById('btn-zi').onclick=()=>zoomAt(innerWidth/2,innerHeight/2,1.5);
+document.getElementById('btn-zo').onclick=()=>zoomAt(innerWidth/2,innerHeight/2,1/1.5);
+
+// ── CHAT ───────────────────────────────────────────────────
+let chatOpen=false;
+function toggleChat(){chatOpen=!chatOpen;document.getElementById('chat-panel').classList.toggle('open',chatOpen);document.getElementById('btn-chat').classList.toggle('active',chatOpen);if(chatOpen)setTimeout(()=>document.getElementById('chat-inp').focus(),50);}
+function addChatMsg(username,text){
+  const d=document.getElementById('chat-msgs');
+  const el=document.createElement('div');el.className='chat-msg';
+  el.innerHTML=`<span class="chat-user">${escH(username)}:</span> ${escH(text)}`;
+  d.appendChild(el);if(d.children.length>200)d.removeChild(d.firstChild);
+  d.scrollTop=d.scrollHeight;
+}
+function addChatSys(text){
+  const d=document.getElementById('chat-msgs');
+  const el=document.createElement('div');el.className='chat-sys';el.textContent=text;
+  d.appendChild(el);d.scrollTop=d.scrollHeight;
+}
+function escH(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function sendChat(){
+  const inp=document.getElementById('chat-inp'),t=inp.value.trim();
+  if(!t)return;
+  if(!user){notify('⚠️ Увійдіть щоб писати в чат');openModal('auth-bg');return;}
+  wsSend({type:'chat',text:t});inp.value='';
+}
+document.getElementById('btn-chat').onclick=toggleChat;
+document.getElementById('chat-send').onclick=sendChat;
+document.getElementById('chat-inp').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();e.stopPropagation();});
+document.getElementById('chat-inp').addEventListener('pointerdown',e=>e.stopPropagation());
+
+// ── KEYBOARD ───────────────────────────────────────────────
+window.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(e.code==='Space'){spaceDown=true;vp.style.cursor='grab';e.preventDefault();}
+  if(e.code==='Equal'||e.code==='NumpadAdd')zoomAt(innerWidth/2,innerHeight/2,1.25);
+  if(e.code==='Minus'||e.code==='NumpadSubtract')zoomAt(innerWidth/2,innerHeight/2,.8);
+  if(e.key==='1'){tool='pixel';pencilOn=false;document.getElementById('btn-pencil').classList.remove('active');}
+  if(e.key==='2'){tool='pencil';pencilOn=true;document.getElementById('btn-pencil').classList.add('active');}
+  if(e.key==='c'||e.key==='C')toggleChat();
+});
+window.addEventListener('keyup',e=>{if(e.code==='Space'){spaceDown=false;vp.style.cursor='crosshair';}});
+window.addEventListener('resize',center);
+
+// ── MODALS ─────────────────────────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.getElementById('auth-x').onclick=()=>closeModal('auth-bg');
+document.getElementById('help-x').onclick=()=>closeModal('help-bg');
+document.querySelectorAll('.mbg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+let authMode='login';
+document.querySelectorAll('.mtab').forEach(t=>{
+  t.onclick=()=>{authMode=t.dataset.t;document.querySelectorAll('.mtab').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById('a-pass2').style.display=authMode==='register'?'':'none';document.getElementById('a-sub').textContent=authMode==='register'?'Зареєструватись':'Увійти';document.getElementById('a-err').textContent='';};
+});
+document.getElementById('a-sub').onclick=()=>{
+  const u=document.getElementById('a-name').value.trim(),p=document.getElementById('a-pass').value,p2=document.getElementById('a-pass2').value,err=document.getElementById('a-err');
+  if(!u||!p){err.textContent='Заповніть всі поля';return;}
+  if(authMode==='register'&&p!==p2){err.textContent='Паролі не збігаються';return;}
+  err.textContent='Зачекайте…';
+  localStorage.setItem('op_u',u);localStorage.setItem('op_p',p);
+  wsSend({type:authMode,username:u,password:p});
+};
+['a-name','a-pass','a-pass2'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('a-sub').click();}));
+
+// ── NOTIFY ─────────────────────────────────────────────────
+let ntimer;
+function notify(msg){const n=document.getElementById('notif');n.textContent=msg;n.style.opacity='1';clearTimeout(ntimer);ntimer=setTimeout(()=>n.style.opacity='0',2400);}
+
+// ── LOADING ────────────────────────────────────────────────
+function setLoadBar(f){document.getElementById('load-bar').style.width=Math.round(f*100)+'%';}
+let loadHidden=false;
+function hideLoading(){if(loadHidden)return;loadHidden=true;const el=document.getElementById('loading');el.style.transition='opacity .5s';el.style.opacity='0';setTimeout(()=>el.style.display='none',500);}
+
+// ── INIT ───────────────────────────────────────────────────
+async function init(){
+  try{
+    const r=await fetch('/api/canvas'),cfg=await r.json();
+    CANVAS_SIZE=cfg.size;TILE_SIZE=cfg.tileSize;TILES=cfg.tiles;MAX_STACK=cfg.maxStack;REGEN_MS=cfg.regenMs;PALETTE=cfg.palette;stack=MAX_STACK;
+  }catch(e){
+    PALETTE=[[202,227,255],[255,255,255],[255,255,255],[228,228,228],[196,196,196],[136,136,136],[78,78,78],[0,0,0],[244,179,174],[255,167,209],[255,84,178],[255,101,101],[229,0,0],[154,0,0],[254,164,96],[229,149,0],[160,106,66],[96,64,40],[245,223,176],[255,248,137],[229,217,0],[148,224,68],[2,190,1],[104,131,56],[0,101,19],[202,227,255],[0,211,221],[0,131,199],[0,0,234],[25,25,115],[207,110,228],[130,0,128]];
+  }
+  initCanvas();buildPalette();center();updateHUD();updateUserUI();
+  requestAnimationFrame(regenLoop);
+  setLoadBar(.08);
+  document.getElementById('load-sub').textContent='Завантаження чанків…';
+  await loadAllChunks();
+  setLoadBar(1);hideLoading();
+  connectWS();
+}
+init();
+</script>
+</body>
+</html>
